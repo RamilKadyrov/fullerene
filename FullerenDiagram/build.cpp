@@ -270,16 +270,16 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<
         std::sort(graph.begin(), graph.end(), [](Vertex& a, Vertex& b) {
             if ( a.e[5] == b.e[5])
             {
-                if (a.e[2] > b.e[2]) return true;
+                if (a.e[2] > b.e[2]) return false;
                 else
                 {
-                    if (a.e[2] < b.e[2]) return false;
+                    if (a.e[2] < b.e[2]) return true;
                     else
                     {
-                        if (a.e[3] > b.e[3]) return true;
+                        if (a.e[3] > b.e[3]) return false;
                         else
                         {
-                            if (a.e[3] < b.e[3]) return false;
+                            if (a.e[3] < b.e[3]) return true;
                             else return true;
                         }
                     }
@@ -287,8 +287,8 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<
             }
             else
             {
-                if( a.e[5] > b.e[5]) return true;
-                else return false;
+                if( a.e[5] > b.e[5]) return false;
+                else return true;
             }
             return true;
         });

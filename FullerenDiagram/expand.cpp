@@ -4,7 +4,7 @@
 #include <random> 
 
 #include "fullereneTypes.h" 
-//#include "buildFullerene.h"
+#include "paintFullerene.h"
 #include "expandFullerene.h" 
 
 inline double sqr(double x)
@@ -76,7 +76,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             v[all + i * 2 + 1] = (v[all + i * 2 + 1] - rm) * dv + rm;
         }
         int k = 25;
-        residueOld = 1E10;
+        residueOld = 1.0E10;
         std::wcout << L"Растягивание сети..." << std::endl;
         do {
             for (size_t i = 0; i < countN; ++i)
@@ -85,12 +85,12 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                 for (size_t edge = 0; edge < 3; ++edge)
                 {
                     auto j = graph[i].e[edge] * 2;
-                    residue = sqrt(sqr(v[j] - v[i * 2]) + sqr(v[j + 1] - v[i * 2 + 1]));
-                    fL = residue - L0;
-                    if (residue != 0)
+                    auto res = sqrt(sqr(v[j] - v[i * 2]) + sqr(v[j + 1] - v[i * 2 + 1]));
+                    fL = res - L0;
+                    if (res != 0)
                     {
-                        f[i * 2] += fL * (v[j] - v[i * 2]) / residue;
-                        f[i * 2 + 1] += fL * (v[j + 1] - v[i * 2 + 1]) / residue;
+                        f[i * 2] += fL * (v[j] - v[i * 2]) / res;
+                        f[i * 2 + 1] += fL * (v[j + 1] - v[i * 2 + 1]) / res;
                     }
                     else
                     {
@@ -114,10 +114,10 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                 {
                     auto j = graph[i].e[edge] * 2;
                     fL = sqr(v[j] - v[i * 2]) + sqr(v[j + 1] - v[i * 2 + 1]);
-                    residue = 1 / (sqrt(fL) * fL);
-                    fX = L0 * sqr(v[j + 1] - v[i * 2 + 1]) * residue - 1;
-                    fY = L0 * sqr(v[j] - v[i * 2]) * residue - 1;
-                    fXY = L0 * (v[j + 1] - v[i * 2 + 1]) * (v[i * 2] - v[j]) * residue;
+                    auto res = 1.0 / (sqrt(fL) * fL);
+                    fX = L0 * sqr(v[j + 1] - v[i * 2 + 1]) * res - 1.0;
+                    fY = L0 * sqr(v[j] - v[i * 2]) * res - 1.0;
+                    fXY = L0 * (v[j + 1] - v[i * 2 + 1]) * (v[i * 2] - v[j]) * res;
                     wp[i * 2][i * 2] += fX;
                     wp[i * 2 + 1][i * 2 + 1] += fY;
                     wp[i * 2][i * 2 + 1] += fXY;
@@ -133,9 +133,8 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             //обратная матрица
             if (k > 10)
             {
-                //Log('Наберитесь терпения...');
                 std::wcout << L"Запущен расчет обратной матрицы из " << all << L" строк" << std::endl;
-                negativeMatrixOp(all - 1);
+                inverseMatrixOp(all - 1);
                 k = 0;
             }
             ++k;
@@ -144,27 +143,35 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                 for (size_t j = 0; j < all; ++j)
                 {
                     v[i] = v[i] - wp1[i][j] * f[j];
-                    wm[i][j] = 0;
-                    for (size_t i1 = 0; i1 < all; ++i1)
-                    {
-                        wm[i][j] += wp[i][i1] * wp1[i1][j];
-                    }
                 }
             }
-            double norm = 0;
+            double norm = 0.0;
             for (size_t i = 0; i < all; ++i)
             {
                 for (size_t j = 0; j < all; ++j)
                 {
+                    wm[i][j] = 0.0;
+                    for (size_t i1 = 0; i1 < all; ++i1)
+                    {
+                        wm[i][j] += wp[i][i1] * wp1[i1][j];
+                    }
                     norm += abs(wm[i][j]);
                 }
             }
-            std::wcout << L"Test negative matrix = " << norm / (double)all << std::endl;
-            residue = 0;
-            for (size_t i = 0; i < all; ++i) residue += abs(f[i]);
+            std::wcout << L"Test inverse matrix = " << norm / (double)all << std::endl;
+            residue = 0.0;
+            for (size_t i = 0; i < all; ++i)
+            {
+                residue += abs(f[i]);
+            }
             if (residue > residueOld) k = 25;
             residueOld = residue;
-                      
+            for (size_t i = 0; i < graph_size; ++i)
+            {
+                graph[i].e[3] = static_cast<int>(v[i * 2]);
+                graph[i].e[4] = static_cast<int>(v[i * 2 + 1]);
+            }
+            paint(L"test.svg", graph);
             std::wcout << L"Результат = " << residue << std::endl;
         } while (residue > epsilon);
 
@@ -333,7 +340,7 @@ void Expand::dive(size_t n, bool p)
 }
 
 //--------- обратная матрица - оптимизированный расчет -------------------------
-void Expand::negativeMatrixOp(size_t n)
+void Expand::inverseMatrixOp(size_t n)
 {
     dive(n, true);
 }

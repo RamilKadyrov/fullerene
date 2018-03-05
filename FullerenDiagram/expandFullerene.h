@@ -16,5 +16,5 @@ private:
     double **wp;
     double **wp1;
     void dive(size_t n, bool p);
-    void negativeMatrixOp(size_t n);
+    void inverseMatrixOp(size_t n);
 };
