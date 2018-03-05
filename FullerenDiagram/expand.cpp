@@ -38,6 +38,8 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
     {
         v.push_back(static_cast<double>(graph[i].e[3]));
         v.push_back(static_cast<double>(graph[i].e[4]));
+        f.push_back(0.0);
+        f.push_back(0.0);
     }
 
     //Randomize;
@@ -62,7 +64,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             }
             if (!quit) break;
         }
-        std::wcout << L"Взбивание." << std::endl;
+        //std::wcout << L"Взбивание." << std::endl;
     } while (!quit);
     //основной счет
     for (size_t l = 0; l <= (enlarge - 1) * iter; ++l)
@@ -80,8 +82,6 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             for (size_t i = 0; i < countN; ++i)
             {
                 //подсчет функции
-                f.push_back(0.0);
-                f.push_back(0.0);
                 for (size_t edge = 0; edge < 3; ++edge)
                 {
                     auto j = graph[i].e[edge] * 2;
@@ -144,18 +144,27 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                 for (size_t j = 0; j < all; ++j)
                 {
                     v[i] = v[i] - wp1[i][j] * f[j];
+                    wm[i][j] = 0;
+                    for (size_t i1 = 0; i1 < all; ++i1)
+                    {
+                        wm[i][j] += wp[i][i1] * wp1[i1][j];
+                    }
                 }
             }
+            double norm = 0;
+            for (size_t i = 0; i < all; ++i)
+            {
+                for (size_t j = 0; j < all; ++j)
+                {
+                    norm += abs(wm[i][j]);
+                }
+            }
+            std::wcout << L"Test negative matrix = " << norm / (double)all << std::endl;
             residue = 0;
-            for (size_t i = 0; i < all; ++i) residue = residue + fabs(f[i]);
+            for (size_t i = 0; i < all; ++i) residue += abs(f[i]);
             if (residue > residueOld) k = 25;
             residueOld = residue;
-
-            for (size_t i = 0; i < graph_size; ++i)
-            {
-                graph[i].e[3] = static_cast<int>(v[i * 2]);
-                graph[i].e[4] = static_cast<int>(v[i * 2 + 1]);
-            }
+                      
             std::wcout << L"Результат = " << residue << std::endl;
         } while (residue > epsilon);
 
