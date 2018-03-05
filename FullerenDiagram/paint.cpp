@@ -21,9 +21,7 @@ Result paint(const wchar_t* outfileName, std::vector<Vertex>& graph)
                 || (graph[vertex.e[edge]].e[4] > 1000)
                 || (graph[vertex.e[edge]].e[3] < -1000)
                 || (graph[vertex.e[edge]].e[4] < -1000)) continue;*/
-            //Pen.Color = clWhite;
-            //MoveTo(vertex.e[3], vertex.e[4]);
-            //LineTo(graph[vertex.e[edge]].e[3], graph[vertex.e[edge]].e[4]);
+            
             svg::Line line(svg::Point(vertex.e[3]+1000, vertex.e[4]+1000),
                            svg::Point(graph[vertex.e[edge]].e[3]+1000, graph[vertex.e[edge]].e[4]+1000),
                            svg::Stroke(1, svg::Color::Red));

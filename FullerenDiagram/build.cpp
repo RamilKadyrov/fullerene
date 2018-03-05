@@ -5,7 +5,7 @@
 #include "fullereneTypes.h" 
 #include "buildFullerene.h"
 
-int buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<Face>& faces)
+Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<Face>& faces)
 {
     std::vector<Edge> edges;
     std::vector<Vertex> vertexes;
@@ -350,7 +350,7 @@ int buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<Fac
     catch (...)
     {
         std::wcerr << L"Error! The graph is not built. " << std::endl;
-        return 1;
+        return Result::FAIL;
     }
-    return 0;
+    return Result::OK;
 }

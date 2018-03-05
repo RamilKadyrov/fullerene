@@ -19,7 +19,7 @@ struct Vertex {
 struct Params{
     size_t faceNum;
     size_t faceToExpand;
-
+    size_t nSide;
     std::vector<unsigned int> pentagons;
 };
 

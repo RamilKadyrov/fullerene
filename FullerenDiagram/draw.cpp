@@ -4,7 +4,7 @@
 #include <math.h>
 #include "fullereneTypes.h" 
 
-Result draw(std::vector<Vertex>& graph)
+Result draw(std::vector<Vertex>& graph, double& gRm)
 {
     std::vector<int> sp;
     
@@ -23,13 +23,13 @@ Result draw(std::vector<Vertex>& graph)
         vertex.e[3] = static_cast<int>(R * pow(1.5, vertex.e[3]));
     }
     int edge = 0;
-    const double gRm = (R * pow(1.5,  sp.size() - 2.0) + 5.0);
+    gRm = (R * pow(1.5,  sp.size() - 2.0) + 5.0);
 
     const double re = gRm * enlarge;
     for (size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
     {
         Vertex& vertex = graph[vertexIndex];
-        if (vertex.e[5] = 1000)
+        if (1000 == vertex.e[5])
         {
             vertex.e[5] = static_cast<int>(sp.size());
             vertex.e[3] = static_cast<int>(re);
