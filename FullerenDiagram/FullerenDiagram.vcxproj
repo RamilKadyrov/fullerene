@@ -151,13 +151,14 @@
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="expand.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="paintFullerene.cpp" />
+    <ClCompile Include="paint.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="buildFullerene.h" />
     <ClInclude Include="drawFullerene.h" />
     <ClInclude Include="expandFullerene.h" />
     <ClInclude Include="fullereneTypes.h" />
+    <ClInclude Include="paintFullerene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

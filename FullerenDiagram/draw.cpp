@@ -11,9 +11,9 @@ Result draw(std::vector<Vertex>& graph)
     const double R = 20.0;
     
     sp.reserve( 10);
-    for (size_t VertexIndex = 0; VertexIndex < graph.size(); ++VertexIndex)
+    for (size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
     {
-        Vertex& vertex = graph[VertexIndex];
+        Vertex& vertex = graph[vertexIndex];
         while (vertex.e[3] >= sp.size())
         {
             sp.push_back(0);
@@ -26,9 +26,9 @@ Result draw(std::vector<Vertex>& graph)
     const double gRm = (R * pow(1.5,  sp.size() - 2.0) + 5.0);
 
     const double re = gRm * enlarge;
-    for (size_t VertexIndex = 0; VertexIndex < graph.size(); ++VertexIndex)
+    for (size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
     {
-        Vertex& vertex = graph[VertexIndex];
+        Vertex& vertex = graph[vertexIndex];
         if (vertex.e[5] = 1000)
         {
             vertex.e[5] = static_cast<int>(sp.size());
@@ -43,9 +43,9 @@ Result draw(std::vector<Vertex>& graph)
     }
     const double Cx = gRm;
     const double Cy = gRm;
-    for (size_t VertexIndex = 0; VertexIndex < graph.size() ; ++VertexIndex)
+    for (size_t vertexIndex = 0; vertexIndex < graph.size() ; ++vertexIndex)
     {
-        Vertex& vertex = graph[VertexIndex];
+        Vertex& vertex = graph[vertexIndex];
         double r = vertex.e[3]; // cycle index
         double nq = vertex.e[4]; // vertex index in cycle
         double nn = sp[vertex.e[5]];//points on cycle

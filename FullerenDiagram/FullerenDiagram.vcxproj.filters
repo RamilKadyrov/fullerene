@@ -27,8 +27,8 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="paintFullerene.cpp">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="paint.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -42,6 +42,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fullereneTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="paintFullerene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
