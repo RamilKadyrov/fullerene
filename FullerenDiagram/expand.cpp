@@ -2,8 +2,8 @@
 #include <vector>
 #include <iostream>
 
-#include "fullerenTypes.h" 
-#include "buildGraph.h"
+#include "fullereneTypes.h" 
+#include "buildFullerene.h"
 
 
 
@@ -14,19 +14,18 @@ public:
     Result expand(std::vector<Vertex>& graph)
     {
         const double L0 = 10.0;
-        const int iter = 10;
-
-        int all, count, countN;
+        const size_t iter = 10;
+        const double epsilon = 0.001;
 
         double *f, *v; // : array[0..maxVertex];
-        double *pExt;
-        double x, y, residue, residueOld, fL, fX, fY, fXY;
+
+        double residue, residueOld, fL, fX, fY, fXY;
         
         bool quit;
         
         double rm = 1.0;//gRm;
                  //graph = TMyParam(Param^).graph;
-        int nSide = 5;//TMyParam(Param^).nSide;
+        size_t nSide = 5;//TMyParam(Param^).nSide;
                   //LeaveCriticalSection(cs);
 
         if ((nSide != 5) && (nSide != 6))
@@ -34,29 +33,30 @@ public:
             std::wcerr << L"Last face contain incorrect number of edges:" << nSide << std::endl;
             return Result::FAIL;
         }
-        count = graph.size() - 1;// graph.count - 1;
-        for (int i = 0; i <= count; ++i)
+        const size_t graph_size = graph.size();
+        for (int i = 0; i < graph_size; ++i)
         {
             v[i * 2] = graph[i].e[3];
             v[i * 2 + 1] = graph[i].e[4];
         }
-        all = count * 2 + 1 - nSide * 2;
+        size_t countN = graph_size - nSide;
+        size_t all = countN * 2;
         /*if (all > maxVertex)
         {
             std::wcerr << L"Число вершин превысило maxVertex" << std::endl;
             return Result::FAIL;
         }*/
-        countN = count - nSide;
+        
         //Randomize;
         do {
             quit = true;
-            for (int i = 0; i <= count; ++i)
+            for (size_t i = 0; i < graph_size; ++i)
             {
-                for (int j = 0; j <= count; ++j)
+                for (size_t j = 0; j < graph_size; ++j)
                 {
                     if ((i != j) && (sqrt(sqr(v[i * 2] - v[j * 2]) + sqr(v[i * 2 + 1] - v[j * 2 + 1])) < L0))
                     {
-                        for (int i1 = 0; i1 <= countN; ++i1)
+                        for (size_t i1 = 0; i1 < countN; ++i1)
                         {
                             v[i1 * 2] += (1.0 + L0 * 3.0) * (std::rand() / RAND_MAX);//Random + Random(Round(L0) * 3);
                             v[i1 * 2 + 1] += (1.0 - L0 * 3.0) * (std::rand() / RAND_MAX);// Random - Random(Round(L0) * 3);
@@ -70,24 +70,24 @@ public:
             //Log('Взбивание.');
         } while (!quit);
         //основной счет
-        for (int l = 0; l <= (enlarge - 1) * iter; ++l)
+        for (size_t l = 0; l <= (enlarge - 1) * iter; ++l)
         {
-            for (int i = 0; i <= nSide - 1; ++i)
+            for (size_t i = 0; i < nSide; ++i)
             {
                 double dv = double(enlarge * iter - l) / double(enlarge * iter + 1 - l);
+                v[all + i * 2] = (v[all + i * 2] - rm) * dv + rm;
                 v[all + i * 2 + 1] = (v[all + i * 2 + 1] - rm) * dv + rm;
-                v[all + i * 2 + 2] = (v[all + i * 2 + 2] - rm) * dv + rm;
             }
             int k = 25;
             residueOld = 1E10;
             //Log('Растягивание сети...');
             do {
-                for (int i = 0; i <= countN; ++i)
+                for (int i = 0; i < countN; ++i)
                 {
                     //подсчет функции
                     f[i * 2] = 0;
                     f[i * 2 + 1] = 0;
-                    for (int Edge = 0; Edge <= 2; ++Edge)
+                    for (size_t Edge = 0; Edge < 3; ++Edge)
                     {
                         int j = graph[i].e[Edge] * 2;
                         residue = sqrt(sqr(v[j] - v[i * 2]) + sqr(v[j + 1] - v[i * 2 + 1]));
@@ -104,7 +104,7 @@ public:
                         }
                     }
                     //обнуление матрицы производных
-                    for (int j = 0; j <= countN; ++j)
+                    for (size_t j = 0; j < countN; ++j)
                     {
                         wp[j * 2][i * 2] = 0;
                         wp[j * 2][i * 2 + 1] = 0;
@@ -113,9 +113,9 @@ public:
                     }
                 }
                 //подсчет матрицы производных
-                for (int i = 0; i <= countN; ++i)
+                for (size_t i = 0; i < countN; ++i)
                 {
-                    for (int Edge = 0; Edge <= 2; ++Edge)
+                    for (size_t Edge = 0; Edge < 3; ++Edge)
                     {
                         int j = graph[i].e[Edge] * 2;
                         fL = sqr(v[j] - v[i * 2]) + sqr(v[j + 1] - v[i * 2 + 1]);
@@ -140,34 +140,34 @@ public:
                 {
                     //Log('Наберитесь терпения...');
                     //Log('Запушен расчет обратной матрицы из ' + IntToStr(all) + ' строк');
-                    negativeMatrixOp(all);
+                    negativeMatrixOp(all - 1);
                     k = 0;
                 }
                 ++k;
-                for (int i = 0; i <= all; ++i)
+                for (size_t i = 0; i < all; ++i)
                 {
-                    for (int j = 0; j <= all; ++j)
+                    for (size_t j = 0; j < all; ++j)
                     {
                         v[i] = v[i] - wp1[i][j] * f[j];
                     }
                 }
                 residue = 0;
-                for (int i = 0; i <= all; ++i) residue = residue + fabs(f[i]);
+                for (size_t i = 0; i < all; ++i) residue = residue + fabs(f[i]);
                 if (residue > residueOld) k = 25;
                 residueOld = residue;
 
-                for (int i = 0; i <= count; ++i)
+                for (size_t i = 0; i < graph_size; ++i)
                 {
                     //TMyParam(Param^).Vx[i] = v[i * 2];
                     //TMyParam(Param^).Vy[i] = v[i * 2 + 1];
-                    graph[i].e[3] = round(v[i * 2]);
-                    graph[i].e[4] = round(v[i * 2 + 1]);
+                    graph[i].e[3] = static_cast<int>(v[i * 2]);
+                    graph[i].e[4] = static_cast<int>(v[i * 2 + 1]);
                 }
                 //Log('Результат = ' + FloatToStr(residue));
-            } while (residue > 0.001);//until residue < 0.001;
+            } while (residue > epsilon);
 
             quit = true;
-            for (int i = 0; i <= countN; ++i)
+            for (size_t i = 0; i < countN; ++i)
             {
                 if (sqr(v[i * 2] - rm) + sqr(v[i * 2 + 1] - rm) >= sqr(rm * 0.9))
                 {
@@ -177,20 +177,20 @@ public:
             }
             if (quit)
             {
-                int j = l;
-                for (int i = 0; i <= nSide - 1; ++i)
+                size_t j = l;
+                for (size_t i = 0; i < nSide; ++i)
                 {
+                    v[all + i * 2] = rm + rm * (v[all + i * 2] - rm)
+                        / sqrt(sqr(v[all + i * 2] - rm) + sqr(v[all + i * 2 + 1] - rm));
                     v[all + i * 2 + 1] = rm + rm * (v[all + i * 2 + 1] - rm)
-                        / sqrt(sqr(v[all + i * 2 + 1] - rm) + sqr(v[all + i * 2 + 2] - rm));
-                    v[all + i * 2 + 2] = rm + rm * (v[all + i * 2 + 2] - rm)
-                        / sqrt(sqr(v[all + i * 2 + 1] - rm) + sqr(v[all + i * 2 + 2] - rm));
+                        / sqrt(sqr(v[all + i * 2] - rm) + sqr(v[all + i * 2 + 1] - rm));
                 }
-                for (int i = 0; i <= count; ++i)
+                for (size_t i = 0; i < graph_size; ++i)
                 {
                     //TMyParam(Param^).Vx[i] = v[i * 2];
                     //TMyParam(Param^).Vy[i] = v[i * 2 + 1];
-                    graph[i].e[3] = round(v[i * 2]);
-                    graph[i].e[4] = round(v[i * 2 + 1]);
+                    graph[i].e[3] = static_cast<int>(v[i * 2]);
+                    graph[i].e[4] = static_cast<int>(v[i * 2 + 1]);
                 }
                 break;
             }
@@ -204,10 +204,10 @@ private:
     double **wm;
     double **wp;
     double **wp1;
-    void dive(int n, bool p)
+    void dive(size_t n, bool p)
     {
         double det, tEx;
-        int n_1;
+        size_t n_1;
         if (1 == n)
         {
             auto det1 = 1.0 / (wp[0][0] * wp[1][1] - wp[0][1] * wp[1][0]);
@@ -229,7 +229,7 @@ private:
         else
         {
             n_1 = n - 1;
-            dive(n_1, ~p);
+            dive(n_1, !p);
             if (p)
                 //итог в wp1----------------------------
             {
@@ -329,7 +329,7 @@ private:
     }
 
     //--------- обратная матрица - оптимизированный расчет -------------------------
-    void negativeMatrixOp(int n)
+    void negativeMatrixOp(size_t n)
     {
         dive(n, true);
     }

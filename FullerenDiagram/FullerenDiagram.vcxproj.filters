@@ -15,30 +15,33 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FullerenDiagram.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="buildGraph.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="expandGraph.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="draw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="build.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="expand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="paintFullerene.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="buildGraph.h">
+    <ClInclude Include="buildFullerene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fullerenTypes.h">
+    <ClInclude Include="drawFullerene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="expandGraph.h">
+    <ClInclude Include="expandFullerene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="draw.h">
+    <ClInclude Include="fullereneTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

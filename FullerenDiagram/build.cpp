@@ -2,8 +2,8 @@
 #include <vector>
 #include <iostream>
 
-#include "fullerenTypes.h" 
-#include "buildGraph.h"
+#include "fullereneTypes.h" 
+#include "buildFullerene.h"
 
 int buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<Face>& faces)
 {

@@ -147,16 +147,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="buildGraph.cpp" />
+    <ClCompile Include="build.cpp" />
     <ClCompile Include="draw.cpp" />
-    <ClCompile Include="expandGraph.cpp" />
-    <ClCompile Include="FullerenDiagram.cpp" />
+    <ClCompile Include="expand.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="paintFullerene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="buildGraph.h" />
-    <ClInclude Include="draw.h" />
-    <ClInclude Include="expandGraph.h" />
-    <ClInclude Include="fullerenTypes.h" />
+    <ClInclude Include="buildFullerene.h" />
+    <ClInclude Include="drawFullerene.h" />
+    <ClInclude Include="expandFullerene.h" />
+    <ClInclude Include="fullereneTypes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

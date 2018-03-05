@@ -2,39 +2,38 @@
 #include <vector>
 #include <iostream>
 #include <math.h>
-#include "fullerenTypes.h" 
+#include "fullereneTypes.h" 
 
-bool draw(std::vector<Vertex>& graph)
+Result draw(std::vector<Vertex>& graph)
 {
     std::vector<int> sp;
     
     const double R = 20.0;
     
     sp.reserve( 10);
-    for (int VertexIndex = 0; VertexIndex <= graph.size() - 1; ++VertexIndex)
+    for (size_t VertexIndex = 0; VertexIndex < graph.size(); ++VertexIndex)
     {
-        Vertex& pVer = graph[VertexIndex];
-        //if( pVer.e[3] = 1000 ) pVer.e[3] := 0;
-        while (pVer.e[3] > (sp.size() - 1))
+        Vertex& vertex = graph[VertexIndex];
+        while (vertex.e[3] >= sp.size())
         {
             sp.push_back(0);
         }
-        if (pVer.e[5] != 1000) pVer.e[5] = pVer.e[3];
-        ++sp[pVer.e[3]];
-        pVer.e[3] = round(R * exp(pVer.e[3]));
+        if (vertex.e[5] != 1000) vertex.e[5] = vertex.e[3];
+        ++sp[vertex.e[3]];
+        vertex.e[3] = static_cast<int>(R * pow(1.5, vertex.e[3]));
     }
     int edge = 0;
-    double gRm = (R * exp( sp.size() - 2) + 5);
+    const double gRm = (R * pow(1.5,  sp.size() - 2.0) + 5.0);
 
     const double re = gRm * enlarge;
-    for (int VertexIndex = 0; VertexIndex <= (graph.size() - 1); ++VertexIndex)
+    for (size_t VertexIndex = 0; VertexIndex < graph.size(); ++VertexIndex)
     {
-        Vertex& pVer = graph[VertexIndex];
-        if (pVer.e[5] = 1000)
+        Vertex& vertex = graph[VertexIndex];
+        if (vertex.e[5] = 1000)
         {
-            pVer.e[5] = sp.size();
-            pVer.e[3] = round(re);
-            pVer.e[4] = edge;
+            vertex.e[5] = static_cast<int>(sp.size());
+            vertex.e[3] = static_cast<int>(re);
+            vertex.e[4] = edge;
             ++edge;
         }
     }
@@ -42,18 +41,18 @@ bool draw(std::vector<Vertex>& graph)
     {
         sp.push_back(edge);
     }
-    double Cx = gRm;
-    double Cy = gRm;
-    for (int VertexIndex = 0; VertexIndex <= (graph.size() - 1); ++VertexIndex)
+    const double Cx = gRm;
+    const double Cy = gRm;
+    for (size_t VertexIndex = 0; VertexIndex < graph.size() ; ++VertexIndex)
     {
-        Vertex& pVer = graph[VertexIndex];
-        double r = pVer.e[3];
-        double nq = pVer.e[4];
-        double nn = sp[pVer.e[5]];
+        Vertex& vertex = graph[VertexIndex];
+        double r = vertex.e[3]; // cycle index
+        double nq = vertex.e[4]; // vertex index in cycle
+        double nn = sp[vertex.e[5]];//points on cycle
         double angle = nq * 2 * 3.14 / nn;
         
-        pVer.e[3] = round(R * cos(angle) + Cx);
-        pVer.e[4] = round(R * sin(angle) + Cy);
+        vertex.e[3] = static_cast<int>((r * cos(angle) + Cx));
+        vertex.e[4] = static_cast<int>((r * sin(angle) + Cy));
     }
- 
+    return Result::OK;
 }
