@@ -26,14 +26,26 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
     const size_t graph_size = graph.size();
     size_t countN = graph_size - nSide;
     size_t all = countN * 2;
-    wp = new double*[all];
-    wp1 = new double*[all];
-    wm = new double*[all];
-    for (size_t i = 0; i < all; ++i) {
-        wp[i] = new double[all];
-        wp1[i] = new double[all];
-        wm[i] = new double[all];
+    size_t all1 = 256;
+    wp = new double*[all1];
+    wp1 = new double*[all1];
+    wm = new double*[all1];
+    for (size_t i = 0; i < all1; ++i) {
+        wp[i] = new double[all1];
+        wp1[i] = new double[all1];
+        wm[i] = new double[all1];
     }
+    /*for (size_t i = 0; i < all; ++i) {
+        delete[] wm[i];
+        delete[] wp1[i];
+        delete[] wp[i];
+    }
+    delete[] wm;
+    delete[] wp1;
+    delete[] wp;
+
+    return Result::OK;*/
+
     for (size_t i = 0; i < graph_size; ++i)
     {
         v.push_back(static_cast<double>(graph[i].e[3]));
@@ -82,6 +94,8 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             for (size_t i = 0; i < countN; ++i)
             {
                 //подсчет функции
+                f[i * 2] = 0;
+                f[i * 2 + 1] = 0;
                 for (size_t edge = 0; edge < 3; ++edge)
                 {
                     auto j = graph[i].e[edge] * 2;
@@ -142,10 +156,10 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             {
                 for (size_t j = 0; j < all; ++j)
                 {
-                    v[i] = v[i] - wp1[i][j] * f[j];
+                    v[i] -= wp1[i][j] * f[j];
                 }
             }
-            double norm = 0.0;
+            /*double norm = 0.0;
             for (size_t i = 0; i < all; ++i)
             {
                 for (size_t j = 0; j < all; ++j)
@@ -158,7 +172,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                     norm += abs(wm[i][j]);
                 }
             }
-            std::wcout << L"Test inverse matrix = " << norm / (double)all << std::endl;
+            std::wcout << L"Test inverse matrix = " << norm / (double)all << std::endl;*/
             residue = 0.0;
             for (size_t i = 0; i < all; ++i)
             {
@@ -166,12 +180,12 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             }
             if (residue > residueOld) k = 25;
             residueOld = residue;
-            for (size_t i = 0; i < graph_size; ++i)
+            /*for (size_t i = 0; i < graph_size; ++i)
             {
                 graph[i].e[3] = static_cast<int>(v[i * 2]);
                 graph[i].e[4] = static_cast<int>(v[i * 2 + 1]);
             }
-            paint(L"test.svg", graph);
+            paint(L"test.svg", graph);*/
             std::wcout << L"Результат = " << residue << std::endl;
         } while (residue > epsilon);
 
@@ -208,7 +222,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
     }
     delete[] wm;
     delete[] wp1;
-    delete[] wm;
+    delete[] wp;
     std::wcout << L"Граф растянут." << std::endl;
     return Result::OK;
 }
@@ -293,7 +307,7 @@ void Expand::dive(size_t n, bool p)
             //вычисляем  - w * A_1
             for (int i = 0; i <= n_1; ++i)
             {
-                tEx = 0;
+                tEx = 0.0;
                 for (int j = 0; j <= n_1; ++j)
                 {
                     tEx -= wp[n][j] * wp1[j][i];
@@ -313,7 +327,7 @@ void Expand::dive(size_t n, bool p)
             // - beta * A_1 * v
             for (int i = 0; i <= n_1; ++i)
             {
-                tEx = 0;
+                tEx = 0.0;
                 for (int j = 0; j <= n_1; ++j)
                 {
                     tEx -= wp1[i][j] * wp[j][n];
