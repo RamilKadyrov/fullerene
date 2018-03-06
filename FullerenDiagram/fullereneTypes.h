@@ -1,6 +1,6 @@
 #pragma once
 struct Face{
-    size_t size = 6;
+    int size = 6;
     int edge[6];
 };
 
@@ -17,9 +17,9 @@ struct Vertex {
 
 
 struct Params{
-    size_t faceNum;
-    size_t faceToExpand;
-    size_t nSide;
+    int faceNum;
+    int faceToExpand;
+    int nSide;
     std::vector<unsigned int> pentagons;
 };
 

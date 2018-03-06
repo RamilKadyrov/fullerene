@@ -29,6 +29,7 @@ double mulMatrix()
     norm += abs(wm[ai + j]);
     }
     }*/
+    return 0.0;
 }
 
 Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
