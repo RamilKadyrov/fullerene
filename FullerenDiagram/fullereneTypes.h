@@ -28,5 +28,4 @@ enum class Result {
     FAIL,
 };
 
-const int maxVertex = 255;
-const int enlarge = 5;
+const unsigned int enlarge = 5;

@@ -10,7 +10,7 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<
     std::vector<Edge> edges;
     std::vector<Vertex> vertexes;
     int    edgeBegin;
-    size_t faceIndex, edgeIndex, edgeEnd, vertexIndex;
+    size_t faceIndex, edgeEnd, vertexIndex;
     
     std::wcout << L"Building graph..." << std::endl;
 
@@ -27,7 +27,7 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<
         }
         //build first face
         auto pSd = &faces[0];
-        for (edgeIndex = 0; edgeIndex < pSd->size; ++edgeIndex)
+        for (size_t edgeIndex = 0; edgeIndex < pSd->size; ++edgeIndex)
         {
             edges.resize(edges.size() + 1);
             auto pEd = edges.end() - 1;
@@ -67,7 +67,7 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<
             auto fSd = &faces[freeFace];
             std::wcout << L"Face " << faceIndex << L", edges number" << pSd->size << std::endl;
              //search for an unoccupied free face's edge 
-            edgeIndex = 0;
+            size_t edgeIndex = 0;
             while (-1 != edges[fSd->edge[edgeIndex]].s2)
             {
                 ++edgeIndex;
@@ -241,7 +241,7 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<
             vertexes[edges[pSd->edge[0]].v1].e[4] = 0;
             vertexes[edges[pSd->edge[0]].v1].e[3] = curentCycle;
         }
-        for (edgeIndex = 1; edgeIndex < pSd->size; ++edgeIndex)
+        for (size_t edgeIndex = 1; edgeIndex < pSd->size; ++edgeIndex)
         {
             if ((edges[pSd->edge[edgeIndex]].v1 == edges[pSd->edge[edgeIndex - 1]].v1)
                 || (edges[pSd->edge[edgeIndex]].v1 == edges[pSd->edge[edgeIndex - 1]].v2))
@@ -296,7 +296,7 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<
         for (vertexIndex = 0; vertexIndex < vertexes.size(); ++vertexIndex)
         {
             curentVertex = graph[vertexIndex].e[4];
-            for (edgeIndex = 0; edgeIndex < 3; ++edgeIndex)
+            for (size_t edgeIndex = 0; edgeIndex < 3; ++edgeIndex)
             {
                 if (edges[vertexes[curentVertex].e[edgeIndex]].v1 == curentVertex)
                     edges[vertexes[curentVertex].e[edgeIndex]].v1 = vertexIndex;
@@ -308,7 +308,7 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<
         {
             auto pVr = &(graph[vertexIndex]);
             curentVertex = pVr->e[4];
-            for (edgeIndex = 0; edgeIndex < 3; ++edgeIndex)
+            for (size_t edgeIndex = 0; edgeIndex < 3; ++edgeIndex)
             {
                 if (edges[vertexes[curentVertex].e[edgeIndex]].v1 == vertexIndex)
                     pVr->e[edgeIndex] = edges[vertexes[curentVertex].e[edgeIndex]].v2;
@@ -331,7 +331,7 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<
             {
                 pSd->edge[0] = edges[pSd->edge[0]].v1;
             }
-            for (edgeIndex = 1; edgeIndex < pSd->size; ++edgeIndex)
+            for (size_t edgeIndex = 1; edgeIndex < pSd->size; ++edgeIndex)
             {
                 if ((edges[pSd->edge[edgeIndex]].v1 == edges[pSd->edge[edgeIndex - 1]].v1)
                     or (edges[pSd->edge[edgeIndex]].v1 == edges[pSd->edge[edgeIndex - 1]].v2))

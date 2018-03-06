@@ -1,7 +1,8 @@
 #include <algorithm>
 #include <vector>
 #include <iostream>
-#include <random> 
+#include <random>
+#include <limits>
 
 #include "fullereneTypes.h" 
 #include "paintFullerene.h"
@@ -12,10 +13,28 @@ inline double sqr(double x)
     return x * x;
 }
 
+double mulMatrix()
+{
+    /*double norm = 0.0;
+    for (size_t i = 0; i < sizeXYN; ++i)
+    {
+    auto ai = sizeXY * i;
+    for (size_t j = 0; j < sizeXYN; ++j)
+    {
+    wm[ai + j] = 0.0;
+    for (size_t i1 = 0; i1 < sizeXYN; ++i1)
+    {
+    wm[ai + j] += wp[ai + i1] * wp1[sizeXY * i1 + j];
+    }
+    norm += abs(wm[ai + j]);
+    }
+    }*/
+}
+
 Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
 {
     std::vector<double> f, v; 
-    double residue, residueOld, fL, fX, fY, fXY;
+    double residue, residueOld;
     bool quit;
     
     if ((nSide != 5) && (nSide != 6))
@@ -23,48 +42,34 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
         std::wcerr << L"Last face contain incorrect number of edges:" << nSide << std::endl;
         return Result::FAIL;
     }
-    const size_t graph_size = graph.size();
-    size_t countN = graph_size - nSide;
-    size_t all = countN * 2;
-    size_t all1 = 256;
-    wp = new double*[all1];
-    wp1 = new double*[all1];
-    wm = new double*[all1];
-    for (size_t i = 0; i < all1; ++i) {
-        wp[i] = new double[all1];
-        wp1[i] = new double[all1];
-        wm[i] = new double[all1];
-    }
-    /*for (size_t i = 0; i < all; ++i) {
-        delete[] wm[i];
-        delete[] wp1[i];
-        delete[] wp[i];
-    }
-    delete[] wm;
-    delete[] wp1;
-    delete[] wp;
 
-    return Result::OK;*/
-
-    for (size_t i = 0; i < graph_size; ++i)
+    const size_t graphSize = graph.size();
+    size_t sizeN = graphSize - nSide;
+    size_t sizeXYN = sizeN * 2;
+    sizeXY = 2 * graphSize;
+    const size_t mtrxSize = 4 * graphSize * graphSize;
+    wp.resize(mtrxSize);
+    wp1.resize(mtrxSize);
+    wm.resize(mtrxSize);
+    f.resize(sizeXY);
+    v.reserve(sizeXY);
+    for (size_t i = 0; i < graphSize; ++i)
     {
         v.push_back(static_cast<double>(graph[i].e[3]));
         v.push_back(static_cast<double>(graph[i].e[4]));
-        f.push_back(0.0);
-        f.push_back(0.0);
     }
 
     //Randomize;
     do {
         quit = true;
-        for (size_t i = 0; i < graph_size; ++i)
+        for (size_t i = 0; i < graphSize; ++i)
         {
-            for (size_t j = 0; j < graph_size; ++j)
+            for (size_t j = 0; j < graphSize; ++j)
             {
                 auto d = sqrt(sqr(v[i * 2] - v[j * 2]) + sqr(v[i * 2 + 1] - v[j * 2 + 1]));
                 if ((i != j) && (d < L0))
                 {
-                    for (size_t i1 = 0; i1 < countN; ++i1)
+                    for (size_t i1 = 0; i1 < sizeN; ++i1)
                     {
                         double rnd = (double)rand() / RAND_MAX;
                         v[i1 * 2] += (1.0 + L0 * 3.0) * rnd;
@@ -79,19 +84,21 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
         //std::wcout << L"Взбивание." << std::endl;
     } while (!quit);
     //основной счет
-    for (size_t l = 0; l <= (enlarge - 1) * iter; ++l)
+    quit = false;
+    for (size_t l = 0; l < enlarge * iter && !quit; ++l)
     {
         for (size_t i = 0; i < nSide; ++i)
         {
-            double dv = double(enlarge * iter - l) / double(enlarge * iter + 1 - l);
-            v[all + i * 2] = (v[all + i * 2] - rm) * dv + rm;
-            v[all + i * 2 + 1] = (v[all + i * 2 + 1] - rm) * dv + rm;
+            auto dv = static_cast<double>(enlarge * iter - l) / static_cast<double>(enlarge * iter + 1 - l);
+            auto i2 = i * 2;
+            v[sizeXYN + i2] = (v[sizeXYN + i2] - rm) * dv + rm;
+            v[sizeXYN + i2 + 1] = (v[sizeXYN + i2 + 1] - rm) * dv + rm;
         }
         int k = 25;
-        residueOld = 1.0E10;
+        residueOld = std::numeric_limits<double>::max();
         std::wcout << L"Растягивание сети..." << std::endl;
         do {
-            for (size_t i = 0; i < countN; ++i)
+            for (size_t i = 0; i < sizeN; ++i)
             {
                 //подсчет функции
                 f[i * 2] = 0;
@@ -100,7 +107,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                 {
                     auto j = graph[i].e[edge] * 2;
                     auto res = sqrt(sqr(v[j] - v[i * 2]) + sqr(v[j + 1] - v[i * 2 + 1]));
-                    fL = res - L0;
+                    auto fL = res - L0;
                     if (res != 0)
                     {
                         f[i * 2] += fL * (v[j] - v[i * 2]) / res;
@@ -112,85 +119,72 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                         return Result::FAIL;
                     }
                 }
-                //обнуление матрицы производных
-                for (size_t j = 0; j < countN; ++j)
-                {
-                    wp[j * 2][i * 2] = 0.0;
-                    wp[j * 2][i * 2 + 1] = 0.0;
-                    wp[j * 2 + 1][i * 2] = 0.0;
-                    wp[j * 2 + 1][i * 2 + 1] = 0.0;
-                }
+                
             }
+            std::fill(wp.begin(), wp.end(), 0.0);
             //подсчет матрицы производных
-            for (size_t i = 0; i < countN; ++i)
+            for (size_t i = 0; i < sizeN; ++i)
             {
+                auto i2 = i * 2;
+                auto ia2 = i2 * sizeXY;
                 for (size_t edge = 0; edge < 3; ++edge)
                 {
                     auto j = graph[i].e[edge] * 2;
-                    fL = sqr(v[j] - v[i * 2]) + sqr(v[j + 1] - v[i * 2 + 1]);
-                    auto res = 1.0 / (sqrt(fL) * fL);
-                    fX = L0 * sqr(v[j + 1] - v[i * 2 + 1]) * res - 1.0;
-                    fY = L0 * sqr(v[j] - v[i * 2]) * res - 1.0;
-                    fXY = L0 * (v[j + 1] - v[i * 2 + 1]) * (v[i * 2] - v[j]) * res;
-                    wp[i * 2][i * 2] += fX;
-                    wp[i * 2 + 1][i * 2 + 1] += fY;
-                    wp[i * 2][i * 2 + 1] += fXY;
-                    wp[i * 2 + 1][i * 2] += fXY;
+                    auto fL = sqr(v[j] - v[i2]) + sqr(v[j + 1] - v[i2 + 1]);
+                    auto res = L0 / (sqrt(fL) * fL);
+                    auto fX = sqr(v[j + 1] - v[i2 + 1]) * res - 1.0;
+                    auto fY = sqr(v[j] - v[i2]) * res - 1.0;
+                    auto fXY = (v[j + 1] - v[i2 + 1]) * (v[i2] - v[j]) * res;
+                    
+                    wp[ia2 + i2] += fX;
+                    wp[ia2 + sizeXY + i2 + 1] += fY;
+                    wp[ia2 + i2 + 1] += fXY;
+                    wp[ia2 + sizeXY + i2] += fXY;
                     //далее производная по xi
-                    wp[i * 2][j] = -fX;
-                    wp[i * 2 + 1][j] = -fXY;
+                    wp[ia2 + j] = -fX;
+                    wp[ia2 + sizeXY + j] = -fXY;
                     //далее производная по yi
-                    wp[i * 2 + 1][j + 1] = -fY;
-                    wp[i * 2][j + 1] = -fXY;
+                    wp[ia2 + sizeXY + j + 1] = -fY;
+                    wp[ia2 + j + 1] = -fXY;
                 }
             }
             //обратная матрица
             if (k > 10)
             {
-                std::wcout << L"Запущен расчет обратной матрицы из " << all << L" строк" << std::endl;
-                inverseMatrixOp(all - 1);
+                std::wcout << L"Запущен расчет обратной матрицы из " << sizeXYN << L" строк" << std::endl;
+                inverseMatrixOp(sizeXYN - 1);
                 k = 0;
             }
             ++k;
-            for (size_t i = 0; i < all; ++i)
+            for (size_t i = 0; i < sizeXYN; ++i)
             {
-                for (size_t j = 0; j < all; ++j)
+                auto ia = sizeXY * i;
+                for (size_t j = 0; j < sizeXYN; ++j)
                 {
-                    v[i] -= wp1[i][j] * f[j];
+                    v[i] -= wp1[ia + j] * f[j];
                 }
             }
-            /*double norm = 0.0;
-            for (size_t i = 0; i < all; ++i)
-            {
-                for (size_t j = 0; j < all; ++j)
-                {
-                    wm[i][j] = 0.0;
-                    for (size_t i1 = 0; i1 < all; ++i1)
-                    {
-                        wm[i][j] += wp[i][i1] * wp1[i1][j];
-                    }
-                    norm += abs(wm[i][j]);
-                }
-            }
-            std::wcout << L"Test inverse matrix = " << norm / (double)all << std::endl;*/
+            /*double norm = mulMatrix();
+            std::wcout << L"Test inverse matrix = " << norm / (double)sizeXYN << std::endl;*/
             residue = 0.0;
-            for (size_t i = 0; i < all; ++i)
+            for (size_t i = 0; i < sizeXYN; ++i)
             {
                 residue += abs(f[i]);
             }
-            if (residue > residueOld) k = 25;
-            residueOld = residue;
-            /*for (size_t i = 0; i < graph_size; ++i)
+            if (residue > residueOld)
             {
-                graph[i].e[3] = static_cast<int>(v[i * 2]);
-                graph[i].e[4] = static_cast<int>(v[i * 2 + 1]);
+                residueOld = std::numeric_limits<double>::max();
+                k = 25;
             }
-            paint(L"test.svg", graph);*/
+            else
+            {
+                residueOld = residue;
+            }
             std::wcout << L"Результат = " << residue << std::endl;
         } while (residue > epsilon);
-
+        std::wcout << L"Iteration number: "<< l << std::endl;
         quit = true;
-        for (size_t i = 0; i < countN; ++i)
+        for (size_t i = 0; i < sizeN; ++i)
         {
             if (sqr(v[i * 2] - rm) + sqr(v[i * 2 + 1] - rm) >= sqr(rm * 0.9))
             {
@@ -198,36 +192,17 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                 break;
             }
         }
-        if (quit)
-        {
-            size_t j = l;
-            for (size_t i = 0; i < nSide; ++i)
-            {
-                auto div = 1.0 / sqrt(sqr(v[all + i * 2] - rm) + sqr(v[all + i * 2 + 1] - rm));
-                v[all + i * 2] = rm + rm * (v[all + i * 2] - rm) * div;
-                v[all + i * 2 + 1] = rm + rm * (v[all + i * 2 + 1] - rm) * div;
-            }
-            for (size_t i = 0; i < graph_size; ++i)
-            {
-                graph[i].e[3] = static_cast<int>(v[i * 2]);
-                graph[i].e[4] = static_cast<int>(v[i * 2 + 1]);
-            }
-            break;
-        }
+
     }
-    for (size_t i = 0; i < all; ++i) {
-        delete[] wm[i];
-        delete[] wp1[i];
-        delete[] wp[i];
+    
+    for (size_t i = 0; i < graphSize; ++i)
+    {
+        graph[i].e[3] = static_cast<int>(v[i * 2]);
+        graph[i].e[4] = static_cast<int>(v[i * 2 + 1]);
     }
-    delete[] wm;
-    delete[] wp1;
-    delete[] wp;
     std::wcout << L"Граф растянут." << std::endl;
     return Result::OK;
 }
-
-
 
 void Expand::dive(size_t n, bool p)
 {
@@ -235,118 +210,114 @@ void Expand::dive(size_t n, bool p)
     size_t n_1;
     if (1 == n)
     {
-        auto det1 = 1.0 / (wp[0][0] * wp[1][1] - wp[0][1] * wp[1][0]);
+        auto det1 = 1.0 / (wp[0] * wp[sizeXY + 1] - wp[1] * wp[sizeXY]);
         if (p)
         {
-            wp1[0][0] = wp[1][1] * det1;
-            wp1[1][1] = wp[0][0] * det1;
-            wp1[1][0] = -wp[0][1] * det1;
-            wp1[0][1] = -wp[1][0] * det1;
+            wp1[0]       = wp[sizeXY + 1] * det1;
+            wp1[sizeXY + 1] = wp[0] * det1;
+            wp1[sizeXY]     = -wp[1] * det1;
+            wp1[1]       = -wp[sizeXY] * det1;
         }
         else
         {
-            wm[0][0] = wp[1][1] * det1;
-            wm[1][1] = wp[0][0] * det1;
-            wm[1][0] = -wp[0][1] * det1;
-            wm[0][1] = -wp[1][0] * det1;
+            wm[0]       = wp[sizeXY + 1] * det1;
+            wm[sizeXY + 1] = wp[0] * det1;
+            wm[sizeXY]     = -wp[1] * det1;
+            wm[1]       = -wp[sizeXY] * det1;
         }
     }
     else
     {
         n_1 = n - 1;
         dive(n_1, !p);
+        auto an = sizeXY * n;
         if (p)
             //итог в wp1----------------------------
         {
             //вычисляем  - w * A_1
-            for (int i = 0; i <= n_1; ++i)
+            for (size_t i = 0; i <= n_1; ++i)
             {
                 tEx = 0.0;
-                for (int j = 0; j <= n_1; ++j)
+                for (size_t j = 0; j <= n_1; ++j)
                 {
-                    tEx -= wp[n][j] * wm[j][i];
+                    tEx -= wp[an + j] * wm[sizeXY * j + i];
                 }
-                wp1[n][i] = tEx;
+                wp1[an + i] = tEx;
             }
             //beta
-            det = wp[n][n];
-            for (int j = 0; j <= n_1; ++j)
+            det = wp[an + n];
+            for (size_t j = 0; j <= n_1; ++j)
             {
-                det += wp1[n][j] * wp[j][n];
+                det += wp1[an + j] * wp[sizeXY * j + n];
             }
             auto det1 = 1.0 / det;
-            wp1[n][n] = det1;
+            wp1[an + n] = det1;
 
             // - beta * A_1 * v
-            for (int i = 0; i <= n_1; ++i)
+            for (size_t i = 0; i <= n_1; ++i)
             {
                 tEx = 0;
-                for (int j = 0; j <= n_1; ++j)
+                auto ai = sizeXY * i;
+                for (size_t j = 0; j <= n_1; ++j)
                 {
-                    tEx = tEx - wm[i][j] * wp[j][n];
+                    tEx = tEx - wm[ai + j] * wp[sizeXY *j + n];
                 }
                 tEx *= det1;
-                wp1[i][n] = tEx;
-
+                wp1[ai + n] = tEx;
                 // A_1 + beta * A_1 * v * w * A_1
-                for (int j = 0; j <= n_1; ++j)
+                for(size_t j = 0; j <= n_1; ++j)
                 {
-                    wp1[i][j] = wm[i][j] + wp1[n][j] * tEx;
+                    wp1[ai + j] = wm[ai + j] + wp1[an + j] * tEx;
                 }
             }
-
             //вычисляем  - beta * w * A_1
-            for (int i = 0; i <= n_1; ++i)
+            for (size_t i = 0; i <= n_1; ++i)
             {
-                wp1[n][i] *= det1;
+                wp1[an + i] *= det1;
             }
         }
         //итог в wm----------------------------
         else
         {
             //вычисляем  - w * A_1
-            for (int i = 0; i <= n_1; ++i)
+            for (size_t i = 0; i <= n_1; ++i)
             {
                 tEx = 0.0;
-                for (int j = 0; j <= n_1; ++j)
+                for (size_t j = 0; j <= n_1; ++j)
                 {
-                    tEx -= wp[n][j] * wp1[j][i];
+                    tEx -= wp[an + j] * wp1[sizeXY * j + i];
                 }
-                wm[n][i] = tEx;
+                wm[an + i] = tEx;
             }
-
             //beta
-            det = wp[n][n];
-            for (int j = 0; j <= n_1; ++j)
+            det = wp[an + n];
+            for (size_t j = 0; j <= n_1; ++j)
             {
-                det += wm[n][j] * wp[j][n];
+                det += wm[an + j] * wp[sizeXY * j + n];
             }
             auto det1 = 1.0 / det;
-            wm[n][n] = det1;
-
+            wm[an + n] = det1;
             // - beta * A_1 * v
-            for (int i = 0; i <= n_1; ++i)
+            for (size_t i = 0; i <= n_1; ++i)
             {
                 tEx = 0.0;
-                for (int j = 0; j <= n_1; ++j)
+                auto ai = sizeXY * i;
+                for (size_t j = 0; j <= n_1; ++j)
                 {
-                    tEx -= wp1[i][j] * wp[j][n];
+                    tEx -= wp1[ai + j] * wp[sizeXY * j + n];
                 }
                 tEx *= det1;
-                wm[i][n] = tEx;
-
+                wm[ai + n] = tEx;
                 // A_1 + beta * A_1 * v * w * A_1
-
-                for (int j = 0; j <= n_1; ++j)
+                for (size_t j = 0; j <= n_1; ++j)
                 {
-                    wm[i][j] = wp1[i][j] + wm[n][j] * tEx;
+                    wm[ai + j] = wp1[ai + j] + wm[an + j] * tEx;
                 }
             }
-
             //вычисляем  - beta * w * A_1
-            for (int i = 0; i <= n_1; ++i)
+            for (size_t i = 0; i <= n_1; ++i)
             {
-                wm[n][i] *= det1;
+                wm[an + i] *= det1;
             }
         }
     }

@@ -14,7 +14,7 @@ Result paint(const wchar_t* outfileName, std::vector<Vertex>& graph)
         Vertex &vertex = graph[vertexIndex];
         for (size_t edge = 0;  edge < 3; ++edge)
         {
-            if( vertex.e[edge] < vertexIndex) continue;
+            if( static_cast<size_t>(vertex.e[edge]) < vertexIndex) continue;
             /*if( (vertex.e[3] > 1000) || (vertex.e[4] > 1000)
                 || (vertex.e[3] < -1000) || (vertex.e[4] < -1000)
                 || (graph[vertex.e[edge]].e[3] > 1000)
