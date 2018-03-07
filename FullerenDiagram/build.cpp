@@ -5,14 +5,14 @@
 #include "fullereneTypes.h" 
 #include "buildFullerene.h"
 
-Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<Face>& faces)
+Result buildGraph(const Params& params, std::vector<Vertex>& graph)
 {
+    std::wcout << L"Building graph..." << std::endl;
+
+    std::vector<Face> faces;
     std::vector<Edge> edges;
     std::vector<Vertex> vertexes;
     
-    
-    std::wcout << L"Building graph..." << std::endl;
-
     faces.resize(params.faceNum);
     vertexes.reserve(params.faceNum * 2);
     edges.reserve(params.faceNum * 3);
@@ -24,28 +24,18 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<
         {
             faces[p].size = 5;
         }
-        //build first face
+        //building first face
         auto pSd = &faces[0];
         for (int edgeIndex = 0; edgeIndex < pSd->size; ++edgeIndex)
         {
-            edges.resize(edges.size() + 1);
-            auto pEd = edges.end() - 1;
+            int v2 = 0;
+            if (edgeIndex + 1 != pSd->size) v2 = edgeIndex + 1;
+            edges.push_back(Edge(0,-1,edgeIndex, v2));
+                        
             pSd->edge[edgeIndex] = edgeIndex;
-            pEd->v1 = edgeIndex;
-            if (edgeIndex + 1 == pSd->size) pEd->v2 = 0;
-            else  pEd->v2 = edgeIndex + 1;
-            pEd->s1 = 0;
-            pEd->s2 = -1;
- 
-            vertexes.resize(vertexes.size() + 1);
-            auto pVr = vertexes.end() - 1;
-            if (0 == edgeIndex) pVr->e[0] = pSd->size - 1;
-            else pVr->e[0] = edgeIndex - 1;
-            pVr->e[1] = edgeIndex;
-            pVr->e[2] = -1;
-            pVr->e[3] = 0;
-            pVr->e[4] = static_cast<int>(vertexes.size()) - 1;
-            pVr->e[5] = 0;
+            int e0 = pSd->size - 1;
+            if (0 != edgeIndex) e0 = edgeIndex - 1;
+            vertexes.push_back(Vertex(e0, edgeIndex, -1, 0, static_cast<int>(vertexes.size()), 0));
         }
         //loop on the remainig faces
         size_t freeFace = 0;
@@ -182,88 +172,75 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<
             vertexes[edges[pSd->edge[edgeBegin - 1]].v1].e[2] = static_cast<int>(edges.size());
             for (edgeIndex = edgeBegin; edgeIndex < edgeEnd; ++edgeIndex)
             {
-                edges.resize(edges.size()+1);
-                pEd = &edges.back();
-                pSd->edge[edgeIndex] = static_cast<int>(edges.size()) - 1;
-                pEd->s1 = faceIndex;
-                pEd->s2 = -1;
-                if (edgeIndex == edgeBegin) pEd->v1 = edges[pSd->edge[edgeIndex - 1]].v1;
-                else pEd->v1 = edges[pSd->edge[edgeIndex - 1]].v2;
+                pSd->edge[edgeIndex] = static_cast<int>(edges.size());
 
-                vertexes.resize(vertexes.size() + 1);
-                auto pVr = vertexes.end() - 1;
-                pEd->v2 = static_cast<int>(vertexes.size()) - 1;
-                pVr->e[0] = static_cast<int>(edges.size()) - 1;
-                pVr->e[1] = static_cast<int>(edges.size());
-                pVr->e[2] = -1;
-                pVr->e[3] = curentCycle;
-                pVr->e[4] = curentVertex;
-                pVr->e[5] = 0;
+                int v1 = edges[pSd->edge[edgeIndex - 1]].v1;
+                if (edgeIndex != edgeBegin) v1 = edges[pSd->edge[edgeIndex - 1]].v2;
+                edges.push_back(Edge(faceIndex, -1, v1, static_cast<int>(vertexes.size())));
+                
+                vertexes.push_back(Vertex(static_cast<int>(edges.size()) - 1, 
+                    static_cast<int>(edges.size()), -1, curentCycle, curentVertex, 0));
+                                
                 ++curentVertex;
             }
             //creating the face's last edge 
-            edges.resize(edges.size() + 1);
-            pEd = &edges.back();
-            pSd->edge[edgeIndex] = static_cast<int>(edges.size()) - 1;
-            pEd->s1 = faceIndex;
-            pEd->s2 = -1;
-
-            if (edgeIndex == pSd->size - 1) pEd->v2 = edges[pSd->edge[0]].v2;
-            else pEd->v2 = edges[pSd->edge[edgeIndex + 1]].v2;
-
+            pSd->edge[edgeIndex] = static_cast<int>(edges.size());
+            int v2 = edges[pSd->edge[0]].v2;
+            if (edgeIndex != pSd->size - 1) v2 = edges[pSd->edge[edgeIndex + 1]].v2;
+            vertexes[v2].e[2] = static_cast<int>(edges.size());
+            int v1 = edges[pSd->edge[edgeIndex - 1]].v2;
             if (edgeBegin == edgeEnd)
             {
-                pEd->v1 = edges[pSd->edge[edgeIndex - 1]].v1;
-                vertexes[pEd->v1].e[2] = static_cast<int>(edges.size()) - 1;
-                vertexes[pEd->v2].e[2] = static_cast<int>(edges.size()) - 1;
+                v1 = edges[pSd->edge[edgeIndex - 1]].v1;
+                vertexes[v1].e[2] = static_cast<int>(edges.size());
             }
-            else
-            {
-                pEd->v1 = edges[pSd->edge[edgeIndex - 1]].v2;
-                vertexes[pEd->v2].e[2] = static_cast<int>(edges.size()) - 1;
-            }
-            // main loop of creating faces
-        }
+            edges.push_back(Edge(faceIndex, -1, v1, v2));
+        }// main loop of creating faces
         //marking last face
         pSd = &faces[params.faceToExpand];
         ++curentCycle;
         if ((edges[pSd->edge[0]].v1 == edges[pSd->edge[1]].v1)
             || (edges[pSd->edge[0]].v1 == edges[pSd->edge[1]].v2))
         {
-            vertexes[edges[pSd->edge[0]].v2].e[5] = 1000;
-            vertexes[edges[pSd->edge[0]].v2].e[4] = 0;
-            vertexes[edges[pSd->edge[0]].v2].e[3] = curentCycle;
+            auto v2 = edges[pSd->edge[0]].v2;
+            vertexes[v2].e[5] = 1000;
+            vertexes[v2].e[4] = 0;
+            vertexes[v2].e[3] = curentCycle;
         }
         else
         {
-            vertexes[edges[pSd->edge[0]].v1].e[5] = 1000;
-            vertexes[edges[pSd->edge[0]].v1].e[4] = 0;
-            vertexes[edges[pSd->edge[0]].v1].e[3] = curentCycle;
+            auto v1 = edges[pSd->edge[0]].v1;
+            vertexes[v1].e[5] = 1000;
+            vertexes[v1].e[4] = 0;
+            vertexes[v1].e[3] = curentCycle;
         }
-        for (int edgeIndex = 1; edgeIndex < pSd->size; ++edgeIndex)
+        for (int i = 1; i < pSd->size; ++i)
         {
-            if ((edges[pSd->edge[edgeIndex]].v1 == edges[pSd->edge[edgeIndex - 1]].v1)
-                || (edges[pSd->edge[edgeIndex]].v1 == edges[pSd->edge[edgeIndex - 1]].v2))
+            int j = pSd->edge[i];
+            if ((edges[j].v1 == edges[pSd->edge[i - 1]].v1)
+                || (edges[j].v1 == edges[pSd->edge[i - 1]].v2))
             {
-                vertexes[edges[pSd->edge[edgeIndex]].v1].e[5] = 1000;
-                vertexes[edges[pSd->edge[edgeIndex]].v1].e[4] = edgeIndex;
-                vertexes[edges[pSd->edge[edgeIndex]].v1].e[3] = curentCycle;
+                auto v1 = edges[j].v1;
+                vertexes[v1].e[5] = 1000;
+                vertexes[v1].e[4] = i;
+                vertexes[v1].e[3] = curentCycle;
             }
             else
             {
-                vertexes[edges[pSd->edge[edgeIndex]].v2].e[5] = 1000;
-                vertexes[edges[pSd->edge[edgeIndex]].v2].e[4] = edgeIndex;
-                vertexes[edges[pSd->edge[edgeIndex]].v2].e[3] = curentCycle;
+                auto v2 = edges[j].v2;
+                vertexes[v2].e[5] = 1000;
+                vertexes[v2].e[4] = i;
+                vertexes[v2].e[3] = curentCycle;
             }
         }
         //creating output graph
         graph.resize(vertexes.size());
-        for (size_t vertexIndex = 0; vertexIndex < vertexes.size(); ++vertexIndex)
+        for (size_t i = 0; i < vertexes.size(); ++i)
         {
-            graph[vertexIndex].e[4] = static_cast<int>(vertexIndex);
-            graph[vertexIndex].e[2] = vertexes[vertexIndex].e[3];
-            graph[vertexIndex].e[3] = vertexes[vertexIndex].e[4];
-            graph[vertexIndex].e[5] = vertexes[vertexIndex].e[5];
+            graph[i].e[4] = static_cast<int>(i);
+            graph[i].e[2] = vertexes[i].e[3];
+            graph[i].e[3] = vertexes[i].e[4];
+            graph[i].e[5] = vertexes[i].e[5];
         }
         //sorting, last face vertexes will be on the end
         std::sort(graph.begin(), graph.end(), [](Vertex& a, Vertex& b) {
@@ -317,32 +294,7 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph, std::vector<
             pVr->e[4] = vertexes[curentVertex].e[4];
             pVr->e[5] = vertexes[curentVertex].e[5];
         }
-        //creating edges output array
-        for (size_t faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
-        {
-            pSd = &faces[faceIndex];
-            if ((edges[pSd->edge[0]].v1 == edges[pSd->edge[1]].v1)
-                || (edges[pSd->edge[0]].v1 == edges[pSd->edge[1]].v2))
-            {
-                pSd->edge[0] = edges[pSd->edge[0]].v2;
-            }
-            else
-            {
-                pSd->edge[0] = edges[pSd->edge[0]].v1;
-            }
-            for (int edgeIndex = 1; edgeIndex < pSd->size; ++edgeIndex)
-            {
-                if ((edges[pSd->edge[edgeIndex]].v1 == edges[pSd->edge[edgeIndex - 1]].v1)
-                    or (edges[pSd->edge[edgeIndex]].v1 == edges[pSd->edge[edgeIndex - 1]].v2))
-                {
-                    pSd->edge[edgeIndex] = edges[pSd->edge[edgeIndex]].v1;
-                }
-                else
-                {
-                    pSd->edge[edgeIndex] = edges[pSd->edge[edgeIndex]].v2;
-                }
-            }
-        }
+       
         std::wcout << L"The graph is complete." << std::endl;
      
      }

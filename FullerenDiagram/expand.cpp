@@ -82,7 +82,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             }
             if (!quit) break;
         }
-        //std::wcout << L"Взбивание." << std::endl;
+        std::wcout << L"Взбивание." << std::endl;
     } while (!quit);
     //основной счет
     quit = false;
@@ -99,28 +99,37 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
         residueOld = std::numeric_limits<double>::max();
         std::wcout << L"Растягивание сети..." << std::endl;
         do {
-            for (size_t i = 0; i < sizeN; ++i)
+            bool overlap = true;
+            while (overlap)
             {
-                //подсчет функции
-                f[i * 2] = 0;
-                f[i * 2 + 1] = 0;
-                for (size_t edge = 0; edge < 3; ++edge)
+                overlap = false;
+                for (size_t i = 0; i < sizeN && !overlap; ++i)
                 {
-                    auto j = graph[i].e[edge] * 2;
-                    auto res = sqrt(sqr(v[j] - v[i * 2]) + sqr(v[j + 1] - v[i * 2 + 1]));
-                    auto fL = res - L0;
-                    if (res != 0)
+                    //подсчет функции
+                    f[i * 2] = 0;
+                    f[i * 2 + 1] = 0;
+                    for (size_t edge = 0; edge < 3 && !overlap; ++edge)
                     {
-                        f[i * 2] += fL * (v[j] - v[i * 2]) / res;
-                        f[i * 2 + 1] += fL * (v[j + 1] - v[i * 2 + 1]) / res;
+                        auto j = graph[i].e[edge] * 2;
+                        auto res = sqrt(sqr(v[j] - v[i * 2]) + sqr(v[j + 1] - v[i * 2 + 1]));
+                        auto fL = res - L0;
+                        if (res != 0)
+                        {
+                            f[i * 2] += fL * (v[j] - v[i * 2]) / res;
+                            f[i * 2 + 1] += fL * (v[j + 1] - v[i * 2 + 1]) / res;
+                        }
+                        else
+                        {
+                            std::wcerr << L"Положение вершин совпало. Можно запустить снова, возможно, повезет." << std::endl;
+                            //return Result::FAIL;
+                            overlap = true;
+                            auto rnd = (double)rand() / RAND_MAX - 0.5;
+                            v[i * 2] = v[i * 2] + rnd;
+                            v[i * 2] = v[i * 2 + 1] - rnd;
+                        }
                     }
-                    else
-                    {
-                        std::wcerr << L"Положение вершин совпало. Можно запустить снова, возможно, повезет." << std::endl;
-                        return Result::FAIL;
-                    }
+
                 }
-                
             }
             std::fill(wp.begin(), wp.end(), 0.0);
             //подсчет матрицы производных
