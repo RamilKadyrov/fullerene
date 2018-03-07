@@ -45,15 +45,18 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
     }
 
     const size_t graphSize = graph.size();
-    size_t sizeN = graphSize - nSide;
-    size_t sizeXYN = sizeN * 2;
-    sizeXY = 2 * graphSize;
+    const size_t sizeN = graphSize - nSide;
+    const size_t sizeXYN = sizeN * 2;
     const size_t mtrxSize = 4 * graphSize * graphSize;
+
+    sizeXY = 2 * graphSize;
+
     wp.resize(mtrxSize);
     wp1.resize(mtrxSize);
     wm.resize(mtrxSize);
     f.resize(sizeXY);
     v.reserve(sizeXY);
+
     for (size_t i = 0; i < graphSize; ++i)
     {
         v.push_back(static_cast<double>(graph[i].e[3]));
@@ -71,7 +74,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             v[sizeXYN + i2] = (v[sizeXYN + i2] - rm) * dv + rm;
             v[sizeXYN + i2 + 1] = (v[sizeXYN + i2 + 1] - rm) * dv + rm;
         }
-        int k = 25;
+        int k = 5;
         residueOld = std::numeric_limits<double>::max();
         std::wcout << L"–аст€гивание сети..." << std::endl;
         do {
@@ -97,7 +100,6 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                         else
                         {
                             //std::wcerr << L"ѕоложение вершин совпало. ћожно запустить снова, возможно, повезет." << std::endl;
-                            //return Result::FAIL;
                             overlap = true;
                             auto rnd = (double)rand() / RAND_MAX - 0.5;
                             v[i * 2] = v[i * 2] + rnd;
@@ -135,7 +137,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                 }
             }
             //обратна€ матрица
-            if (k > 10)
+            if (k > 3)
             {
                 std::wcout << L"«апущен расчет обратной матрицы из " << sizeXYN << L" строк" << std::endl;
                 inverseMatrixOp(sizeXYN - 1);
@@ -160,7 +162,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             if (residue > residueOld)
             {
                 residueOld = std::numeric_limits<double>::max();
-                k = 25;
+                k = 5;
             }
             else
             {
@@ -192,8 +194,6 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
 
 void Expand::dive(size_t n, bool p)
 {
-    double det, tEx;
-    size_t n_1;
     if (1 == n)
     {
         auto det1 = 1.0 / (wp[0] * wp[sizeXY + 1] - wp[1] * wp[sizeXY]);
@@ -214,25 +214,25 @@ void Expand::dive(size_t n, bool p)
     }
     else
     {
-        n_1 = n - 1;
-        dive(n_1, !p);
+        //const size_t n_1 = n - 1;
+        dive(n - 1, !p);
         auto an = sizeXY * n;
         if (p)
             //итог в wp1----------------------------
         {
             //вычисл€ем  - w * A_1
-            for (size_t i = 0; i <= n_1; ++i)
+            for (size_t i = 0; i < n; ++i)
             {
-                tEx = 0.0;
-                for (size_t j = 0; j <= n_1; ++j)
+                auto tEx = 0.0;
+                for (size_t j = 0; j < n; ++j)
                 {
                     tEx -= wp[an + j] * wm[sizeXY * j + i];
                 }
                 wp1[an + i] = tEx;
             }
             //beta
-            det = wp[an + n];
-            for (size_t j = 0; j <= n_1; ++j)
+            auto det = wp[an + n];
+            for (size_t j = 0; j < n; ++j)
             {
                 det += wp1[an + j] * wp[sizeXY * j + n];
             }
@@ -240,24 +240,24 @@ void Expand::dive(size_t n, bool p)
             wp1[an + n] = det1;
 
             // - beta * A_1 * v
-            for (size_t i = 0; i <= n_1; ++i)
+            for (size_t i = 0; i < n; ++i)
             {
-                tEx = 0;
+                auto tEx = 0.0;
                 auto ai = sizeXY * i;
-                for (size_t j = 0; j <= n_1; ++j)
+                for (size_t j = 0; j < n; ++j)
                 {
                     tEx = tEx - wm[ai + j] * wp[sizeXY *j + n];
                 }
                 tEx *= det1;
                 wp1[ai + n] = tEx;
                 // A_1 + beta * A_1 * v * w * A_1
-                for(size_t j = 0; j <= n_1; ++j)
+                for(size_t j = 0; j < n; ++j)
                 {
                     wp1[ai + j] = wm[ai + j] + wp1[an + j] * tEx;
                 }
             }
             //вычисл€ем  - beta * w * A_1
-            for (size_t i = 0; i <= n_1; ++i)
+            for (size_t i = 0; i < n; ++i)
             {
                 wp1[an + i] *= det1;
             }
@@ -266,42 +266,42 @@ void Expand::dive(size_t n, bool p)
         else
         {
             //вычисл€ем  - w * A_1
-            for (size_t i = 0; i <= n_1; ++i)
+            for (size_t i = 0; i < n; ++i)
             {
-                tEx = 0.0;
-                for (size_t j = 0; j <= n_1; ++j)
+                auto tEx = 0.0;
+                for (size_t j = 0; j < n; ++j)
                 {
                     tEx -= wp[an + j] * wp1[sizeXY * j + i];
                 }
                 wm[an + i] = tEx;
             }
             //beta
-            det = wp[an + n];
-            for (size_t j = 0; j <= n_1; ++j)
+            auto det = wp[an + n];
+            for (size_t j = 0; j < n; ++j)
             {
                 det += wm[an + j] * wp[sizeXY * j + n];
             }
             auto det1 = 1.0 / det;
             wm[an + n] = det1;
             // - beta * A_1 * v
-            for (size_t i = 0; i <= n_1; ++i)
+            for (size_t i = 0; i < n; ++i)
             {
-                tEx = 0.0;
+                auto tEx = 0.0;
                 auto ai = sizeXY * i;
-                for (size_t j = 0; j <= n_1; ++j)
+                for (size_t j = 0; j < n; ++j)
                 {
                     tEx -= wp1[ai + j] * wp[sizeXY * j + n];
                 }
                 tEx *= det1;
                 wm[ai + n] = tEx;
                 // A_1 + beta * A_1 * v * w * A_1
-                for (size_t j = 0; j <= n_1; ++j)
+                for (size_t j = 0; j < n; ++j)
                 {
                     wm[ai + j] = wp1[ai + j] + wm[an + j] * tEx;
                 }
             }
             //вычисл€ем  - beta * w * A_1
-            for (size_t i = 0; i <= n_1; ++i)
+            for (size_t i = 0; i < n; ++i)
             {
                 wm[an + i] *= det1;
             }
