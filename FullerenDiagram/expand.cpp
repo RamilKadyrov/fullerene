@@ -59,31 +59,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
         v.push_back(static_cast<double>(graph[i].e[3]));
         v.push_back(static_cast<double>(graph[i].e[4]));
     }
-
-    //Randomize;
-    do {
-        quit = true;
-        for (size_t i = 0; i < graphSize; ++i)
-        {
-            for (size_t j = 0; j < graphSize; ++j)
-            {
-                auto d = sqrt(sqr(v[i * 2] - v[j * 2]) + sqr(v[i * 2 + 1] - v[j * 2 + 1]));
-                if ((i != j) && (d < L0))
-                {
-                    for (size_t i1 = 0; i1 < sizeN; ++i1)
-                    {
-                        double rnd = (double)rand() / RAND_MAX;
-                        v[i1 * 2] += (1.0 + L0 * 3.0) * rnd;
-                        v[i1 * 2 + 1] += (1.0 - L0 * 3.0) * rnd;
-                    }
-                    quit = false;
-                    break;
-                }
-            }
-            if (!quit) break;
-        }
-        std::wcout << L"Взбивание." << std::endl;
-    } while (!quit);
+       
     //основной счет
     quit = false;
     for (size_t l = 0; l < enlarge * iter && !quit; ++l)
@@ -120,7 +96,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                         }
                         else
                         {
-                            std::wcerr << L"Положение вершин совпало. Можно запустить снова, возможно, повезет." << std::endl;
+                            //std::wcerr << L"Положение вершин совпало. Можно запустить снова, возможно, повезет." << std::endl;
                             //return Result::FAIL;
                             overlap = true;
                             auto rnd = (double)rand() / RAND_MAX - 0.5;
