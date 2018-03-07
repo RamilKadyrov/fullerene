@@ -11,26 +11,25 @@ Result paint(const wchar_t* outfileName, std::vector<Vertex>& graph)
     int maxX = minX;
     int minY = graph[0].e[4];
     int maxY = minY;
-    for (size_t vertexIndex = 1; vertexIndex < graph.size(); ++vertexIndex)
+    for (auto v : graph)
     {
-        Vertex &vertex = graph[vertexIndex];
-        if (vertex.e[3] < minX) minX = vertex.e[3];
-        if (vertex.e[3] > maxX) maxX = vertex.e[3];
-        if (vertex.e[4] < minY) minY = vertex.e[4];
-        if (vertex.e[4] > maxY) maxY = vertex.e[4];
+        if (v.e[3] < minX) minX = v.e[3];
+        if (v.e[3] > maxX) maxX = v.e[3];
+        if (v.e[4] < minY) minY = v.e[4];
+        if (v.e[4] > maxY) maxY = v.e[4];
     }
 
     svg::Dimensions dimensions(maxX - minX, maxY - minY);
     svg::Document doc(outfileName, svg::Layout(dimensions, svg::Layout::BottomLeft));
-        for (size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
+        for (size_t i = 0; i < graph.size(); ++i)
     {
-        Vertex &vertex = graph[vertexIndex];
+        Vertex &v = graph[i];
         for (size_t edge = 0;  edge < 3; ++edge)
         {
-            if( static_cast<size_t>(vertex.e[edge]) < vertexIndex) continue;
+            if( static_cast<size_t>(v.e[edge]) < i) continue;
                         
-            svg::Line line(svg::Point(vertex.e[3] - minX, vertex.e[4] - minY),
-                           svg::Point(graph[vertex.e[edge]].e[3] - minX, graph[vertex.e[edge]].e[4] - minY),
+            svg::Line line(svg::Point(v.e[3] - minX, v.e[4] - minY),
+                           svg::Point(graph[v.e[edge]].e[3] - minX, graph[v.e[edge]].e[4] - minY),
                            svg::Stroke(1, svg::Color::Red));
             doc << line;
 
