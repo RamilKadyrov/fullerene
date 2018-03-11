@@ -46,3 +46,13 @@ enum class Result {
 };
 
 const unsigned int enlarge = 5;
+
+#if defined( _DEBUG) || !defined(NDEBUG)
+#define LOG(msg) std::wcout << msg << std::endl
+#else
+#define LOG(msg)
+#endif // DEBUG
+#define LOG_ERROR(msg) std::wcerr << msg << std::endl
+
+
+
