@@ -9,7 +9,7 @@ public:
     const size_t iter = 10;
     const double epsilon = 0.01;
 
-    Result expand(std::vector<Vertex>& graph, const double gRm, const size_t nSide);
+    Result expand(std::vector<Vertex>& graph, const double gRadius, const size_t nSide);
 private:
      //: array[0..maxVertex, 0..maxVertex] of Extended;
     size_t sizeXY;

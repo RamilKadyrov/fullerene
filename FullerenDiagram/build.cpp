@@ -9,16 +9,16 @@
 
 Result buildGraph(const Params& params, std::vector<Vertex>& graph)
 {
-    LOG(L"Building graph...");
+    LOG( L"Building graph...");
 
     std::vector<Face> faces;
     std::vector<Edge> edges;
     std::vector<Vertex> vertexes;
-
+    
     faces.resize(params.faceNum);
     vertexes.reserve(params.faceNum * 2);
     edges.reserve(params.faceNum * 3);
-
+    
     try
     {
         //initializing number of edges for pentagons
@@ -32,11 +32,12 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
         {
             int v2 = 0;
             if (edgeIndex + 1 != face->size) v2 = edgeIndex + 1;
-            edges.push_back(Edge(0, -1, edgeIndex, v2));
-
+            edges.push_back(Edge(0,-1,edgeIndex, v2));
+                        
             face->edge[edgeIndex] = edgeIndex;
-            int e0 = face->size - 1;
-            if (0 != edgeIndex) e0 = edgeIndex - 1;
+
+            int e0 = edgeIndex - 1 ;
+            if (0 == edgeIndex) e0 = face->size - 1;
             vertexes.push_back(Vertex(e0, edgeIndex, -1, 0, static_cast<int>(vertexes.size()), 0));
         }
         //loop on the remainig faces
@@ -56,8 +57,8 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
             }
             face = &faces[faceIndex];
             auto freeFace = &faces[freeFaceIndex];
-            LOG(L"Face " << faceIndex << L", edges number" << face->size);
-            //search for an unoccupied free face's edge 
+            LOG( L"Face " << faceIndex << L", edges number" << face->size);
+             //search for an unoccupied free face's edge 
             int edgeIndex = 0;
             while (-1 != edges[freeFace->edge[edgeIndex]].s2)
             {
@@ -65,18 +66,18 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
                 if (edgeIndex == freeFace->size)
                 {
                     ++freeFaceIndex;
-                    if (freeFaceIndex == params.faceNum)
+                    if (freeFaceIndex == params.faceNum )
                     {
-                        LOG_ERROR(L"Can't find a free face");
+                        LOG_ERROR( L"Can't find a free face" );
                         throw std::exception();
                     }
-                    LOG(L"Free face " << freeFaceIndex);
+                    LOG( L"Free face " << freeFaceIndex);
                     freeFace = &faces[freeFaceIndex];
                     edgeIndex = 0;
                 }
-            }
+            } 
             //Founded it. Use it.
-            LOG(L"Unoccupied edge " << edgeIndex << L", free face " << faceIndex);
+            LOG( L"Unoccupied edge " << edgeIndex << L", free face " << faceIndex);
             face->edge[0] = freeFace->edge[edgeIndex];
 
             auto edge = &(edges[face->edge[0]]);
@@ -100,14 +101,14 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
                     } while ((-1 != edges[vertexes[edge->v1].e[vertexIndex]].s2) && (0 != vertexIndex));
                     if (-1 != edges[vertexes[edge->v1].e[vertexIndex]].s2)
                     {
-                        LOG_ERROR(L"No free edge found.");
-                        throw std::exception();
+                        LOG_ERROR( L"No free edge found." );
+                        throw std::exception(); 
                     }
                     //occuping it
                     face->edge[edgeIndex] = vertexes[edge->v1].e[vertexIndex];
                     edge = &edges[vertexes[edge->v1].e[vertexIndex]];
                     edge->s2 = faceIndex;
-                    LOG(L"Edge occupied by the face " << edge->s1 << L", edge"
+                    LOG( L"Edge occupied by the face " << edge->s1 << L", edge" 
                         << face->edge[edgeIndex] << L", edge index on face " << edgeIndex);
                 }
                 else
@@ -121,10 +122,10 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
                 //проверим, а туда ли мы пришли
                 if (edges[face->edge[0]].v2 != edges[face->edge[face->size - 1]].v1)
                 {
-                    LOG_ERROR(L"Face " << faceIndex << L" did not close.");
-                    throw std::exception();
+                    LOG_ERROR( L"Face " << faceIndex << L" did not close." );
+                    throw std::exception(); 
                 }
-                else LOG(L"Ok! The graph is closed.");
+                else LOG( L"Ok! The graph is closed.");
                 continue;
             }
             int edgeBegin = edgeIndex;
@@ -149,18 +150,18 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
                     } while ((-1 != edges[vertexes[edge->v2].e[vertexIndex]].s2) && (0 != vertexIndex));
                     if (edges[vertexes[edge->v2].e[vertexIndex]].s2 != -1)
                     {
-                        LOG_ERROR(L"No free edge found.");
+                        LOG_ERROR( L"No free edge found." );
                         throw std::exception();
                     }
                     //occuping it
                     face->edge[edgeIndex] = vertexes[edge->v2].e[vertexIndex];
                     edge = &edges[vertexes[edge->v2].e[vertexIndex]];
                     edge->s2 = faceIndex;
-                    LOG(L"The edge occupied by the face " << edge->s1 << L", edge" << face->edge[edgeIndex]
-                        << L", edge index on the face " << edgeIndex);
+                    LOG( L"The edge occupied by the face " << edge->s1 << L", edge" << face->edge[edgeIndex] 
+                        << L", edge index on the face " << edgeIndex );
                     if (edge->s1 == targetFaceIndex)
                     {
-                        LOG(L"Cycle " << targetFaceIndex);
+                        LOG( L"Cycle " << targetFaceIndex );
                         cycle = true;
                     }
                 }
@@ -179,10 +180,10 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
                 int v1 = edges[face->edge[edgeIndex - 1]].v1;
                 if (edgeIndex != edgeBegin) v1 = edges[face->edge[edgeIndex - 1]].v2;
                 edges.push_back(Edge(faceIndex, -1, v1, static_cast<int>(vertexes.size())));
-
-                vertexes.push_back(Vertex(static_cast<int>(edges.size()) - 1,
+                
+                vertexes.push_back(Vertex(static_cast<int>(edges.size()) - 1, 
                     static_cast<int>(edges.size()), -1, curentCycle, curentVertexIdx, 0));
-
+                                
                 ++curentVertexIdx;
             }
             //creating the face's last edge 
@@ -246,8 +247,29 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
         }
         //sorting, last face vertexes will be on the end
         std::sort(graph.begin(), graph.end(), [](Vertex& a, Vertex& b) {
-            if (a.e[5] > b.e[5]) return false;
-            else return true;
+            if ( a.e[5] == b.e[5])
+            {
+                if (a.e[2] > b.e[2]) return false;
+                else
+                {
+                    if (a.e[2] < b.e[2]) return true;
+                    else
+                    {
+                        if (a.e[3] > b.e[3]) return false;
+                        else
+                        {
+                            if (a.e[3] < b.e[3]) return true;
+                            else return true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if( a.e[5] > b.e[5]) return false;
+                else return true;
+            }
+            return true;
         });
         //reindexing vertexes
         for (size_t vertexIndex = 0; vertexIndex < vertexes.size(); ++vertexIndex)
@@ -277,11 +299,11 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
             vertex->e[4] = vertexes[curentVertexIdx].e[4];
             vertex->e[5] = vertexes[curentVertexIdx].e[5];
         }
-        LOG(L"The graph is complete.");
-    }
+        LOG( L"The graph is complete." );
+     }
     catch (...)
     {
-        LOG_ERROR(L"Error! The graph is not built. ");
+        LOG_ERROR( L"Error! The graph is not built. " );
         return Result::FAIL;
     }
     return Result::OK;

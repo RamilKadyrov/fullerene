@@ -3,4 +3,4 @@
 
 #include "fullereneTypes.h"
 
-Result draw(std::vector<Vertex>& graph, double& gRm);
+Result draw(std::vector<Vertex>& graph, double& gRadius);
