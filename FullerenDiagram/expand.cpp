@@ -13,25 +13,6 @@ inline double sqr(double x)
     return x * x;
 }
 
-double mulMatrix()
-{
-    /*double norm = 0.0;
-    for (size_t i = 0; i < sizeXYN; ++i)
-    {
-    auto ai = sizeXY * i;
-    for (size_t j = 0; j < sizeXYN; ++j)
-    {
-    wm[ai + j] = 0.0;
-    for (size_t i1 = 0; i1 < sizeXYN; ++i1)
-    {
-    wm[ai + j] += wp[ai + i1] * wp1[sizeXY * i1 + j];
-    }
-    norm += abs(wm[ai + j]);
-    }
-    }*/
-    return 0.0;
-}
-
 Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
 {
     std::vector<double> f, v; 
@@ -40,7 +21,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
     
     if ((nSide != 5) && (nSide != 6))
     {
-        std::wcerr << L"Last face contain incorrect number of edges:" << nSide << std::endl;
+        LOG_ERROR( L"Last face contain incorrect number of edges:" << nSide );
         return Result::FAIL;
     }
 
@@ -62,8 +43,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
         v.push_back(static_cast<double>(graph[i].x));
         v.push_back(static_cast<double>(graph[i].y));
     }
-       
-    //основной счет
+ 
     quit = false;
     for (size_t l = 0; l < enlarge * iter && !quit; ++l)
     {
@@ -76,7 +56,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
         }
         int k = 5;
         residueOld = std::numeric_limits<double>::max();
-        std::wcout << L"Растягивание сети..." << std::endl;
+        LOG( L"Expanding the graph..." );
         do {
             bool overlap = true;
             while (overlap)
@@ -84,7 +64,6 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                 overlap = false;
                 for (size_t i = 0; i < sizeN && !overlap; ++i)
                 {
-                    //подсчет функции
                     f[i * 2] = 0;
                     f[i * 2 + 1] = 0;
                     for (size_t edge = 0; edge < 3 && !overlap; ++edge)
@@ -99,7 +78,6 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                         }
                         else
                         {
-                            //std::wcerr << L"Положение вершин совпало. Можно запустить снова, возможно, повезет." << std::endl;
                             overlap = true;
                             auto rnd = (double)rand() / RAND_MAX - 0.5;
                             v[i * 2] = v[i * 2] + rnd;
@@ -110,7 +88,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                 }
             }
             std::fill(wp.begin(), wp.end(), 0.0);
-            //подсчет матрицы производных
+            //derivative matrix calculation
             for (size_t i = 0; i < sizeN; ++i)
             {
                 auto i2 = i * 2;
@@ -128,18 +106,18 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                     wp[ia2 + sizeXY + i2 + 1] += fY;
                     wp[ia2 + i2 + 1] += fXY;
                     wp[ia2 + sizeXY + i2] += fXY;
-                    //далее производная по xi
+                    // xi
                     wp[ia2 + j] = -fX;
                     wp[ia2 + sizeXY + j] = -fXY;
-                    //далее производная по yi
+                    // yi
                     wp[ia2 + sizeXY + j + 1] = -fY;
                     wp[ia2 + j + 1] = -fXY;
                 }
             }
-            //обратная матрица
+            //inverse matrix
             if (k > 3)
             {
-                std::wcout << L"Запущен расчет обратной матрицы из " << sizeXYN << L" строк" << std::endl;
+                LOG( L"Inverse matrix calculation. Size: " << sizeXYN << " x " << sizeXYN);
                 inverseMatrixOp(sizeXYN - 1);
                 k = 0;
             }
@@ -152,8 +130,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                     v[i] -= wp1[ia + j] * f[j];
                 }
             }
-            /*double norm = mulMatrix();
-            std::wcout << L"Test inverse matrix = " << norm / (double)sizeXYN << std::endl;*/
+
             residue = 0.0;
             for (size_t i = 0; i < sizeXYN; ++i)
             {
@@ -168,9 +145,9 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             {
                 residueOld = residue;
             }
-            std::wcout << L"Результат = " << residue << std::endl;
+            LOG( L"Residue = " << residue );
         } while (residue > epsilon);
-        std::wcout << L"Iteration number: "<< l << std::endl;
+        LOG( L"Iteration number: "<< l );
         quit = true;
         for (size_t i = 0; i < sizeN; ++i)
         {
@@ -188,7 +165,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
         graph[i].x = static_cast<int>(v[i * 2]);
         graph[i].y = static_cast<int>(v[i * 2 + 1]);
     }
-    std::wcout << L"Граф растянут." << std::endl;
+    LOG( L"The graph is expanded" );
     return Result::OK;
 }
 
@@ -310,7 +287,6 @@ void Expand::dive(size_t n, bool p)
     //Log('Вынырнули с ' + IntToStr(n) + 'уровня');
 }
 
-//--------- обратная матрица - оптимизированный расчет -------------------------
 void Expand::inverseMatrixOp(size_t n)
 {
     dive(n, true);
