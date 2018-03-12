@@ -13,7 +13,6 @@ public:
 private:
     std::vector<Face> faces;
     std::vector<Edge> edges;
-    std::vector<Vertex> vertexes, vertexes1;
-
+    std::vector<Vertex> vertexes1;
     bool fillEV(int faceIndex, int edgeIndex, const Vertex& vertex,  Edge **edge);
 };

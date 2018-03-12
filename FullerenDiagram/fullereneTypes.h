@@ -17,13 +17,13 @@ struct  Edge {
 struct Vertex {
     int e[6];  // edges indexes
     int cycle;
-    int x, y;
-    int cycleVertexIndex;
+    //int x, y;
+    size_t cycleVertexIndex;
     size_t index;
     bool lastFace;
 
     Vertex() { }
-    Vertex(int e0, int e1, int e2, int e3, int e4, int e5)
+    /*Vertex(int e0, int e1, int e2, int e3, int e4, int e5)
     {
         e[0] = e0;
         e[1] = e1;
@@ -31,8 +31,8 @@ struct Vertex {
         e[3] = e3;
         e[4] = e4;
         e[5] = e5;
-    }
-    Vertex(int _e0, int _e1, int _e2, int _cycle, int _index, bool _lastFace)
+    }*/
+    Vertex(int _e0, int _e1, int _e2, int _cycle, size_t _index, bool _lastFace)
     {
         e[0] = _e0;
         e[1] = _e1;
