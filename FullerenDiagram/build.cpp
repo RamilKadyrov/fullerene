@@ -30,13 +30,12 @@ bool Build::fillEV(const int faceIndex, const int edgeIndex,const Vertex& vertex
         throw std::exception();
     }
     //occuping it
-    auto face = &faces[faceIndex];
-    face->edge[edgeIndex] = vertex.e[eIdx];
+    faces[faceIndex].edge[edgeIndex] = vertex.e[eIdx];
 
     (*edge) = &edges[vertex.e[eIdx]];
     (*edge)->s2 = faceIndex;
     LOG(L"Edge occupied by the face " << (*edge)->s1 << L", edge"
-        << face->edge[edgeIndex] << L", edge index on face " << edgeIndex);
+        << faces[faceIndex].edge[edgeIndex] << L", edge index on face " << edgeIndex);
     return false;
 }
 
