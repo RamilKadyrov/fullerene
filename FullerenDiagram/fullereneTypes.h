@@ -18,8 +18,10 @@ struct Vertex {
     int e[6];  // edges indexes
     int cycle;
     int x, y;
-    int index;
+    int cycleVertexIndex;
+    size_t index;
     bool lastFace;
+
     Vertex() { }
     Vertex(int e0, int e1, int e2, int e3, int e4, int e5)
     {
@@ -36,7 +38,7 @@ struct Vertex {
         e[1] = _e1;
         e[2] = _e2;
         cycle = _cycle;
-        index = _index;
+        cycleVertexIndex = _index;
         lastFace = _lastFace;
     }
     //e[0],e[1],e[2] - index (edge or vertex)

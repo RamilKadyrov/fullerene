@@ -15,5 +15,5 @@ private:
     std::vector<Edge> edges;
     std::vector<Vertex> vertexes, vertexes1;
 
-    bool fillEV(int faceIndex, int edgeIndex, int vertexIndex,  Edge **edge);
+    bool fillEV(int faceIndex, int edgeIndex, const Vertex& vertex,  Edge **edge);
 };
