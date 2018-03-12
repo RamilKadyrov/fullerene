@@ -45,7 +45,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
     LOG(L"Building graph...");
 
     faces.resize(params.faceNum);
-    vertexes1.reserve(params.faceNum * 2);
+    vertexes.reserve(params.faceNum * 2);
     edges.reserve(params.faceNum * 3);
 
     try
@@ -69,7 +69,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             int e0 = edgeIndex - 1;
             if (0 == edgeIndex) e0 = face->size - 1;
 
-            vertexes1.push_back(Vertex(e0, edgeIndex, -1, currentCycle, static_cast<int>(vertexes1.size()), false));
+            vertexes.push_back(Vertex(e0, edgeIndex, -1, currentCycle, static_cast<int>(vertexes.size()), false));
         }
         //loop on the remainig faces
         size_t freeFaceIndex = 0;
@@ -118,7 +118,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             
             for (edgeIndex = 1; edgeIndex < face->size; ++edgeIndex)
             {
-                if (fillEV(faceIndex, edgeIndex, vertexes1[edge->v1], &edge)) break;
+                if (fillEV(faceIndex, edgeIndex, vertexes[edge->v1], &edge)) break;
             }
             //If all edges occupied, then continue
             if (edgeIndex == face->size)
@@ -137,7 +137,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             edge = &edges[face->edge[0]];
             for (edgeIndex = face->size - 1; edgeIndex >= 2; --edgeIndex)
             {
-                if (fillEV(faceIndex, edgeIndex, vertexes1[edge->v2], &edge)) break;
+                if (fillEV(faceIndex, edgeIndex, vertexes[edge->v2], &edge)) break;
                 if (edge->s1 == targetFaceIndex)
                 {
                     LOG(L"Cycle " << targetFaceIndex);
@@ -146,7 +146,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             }
             //creating the face's new edges and vertexes
             int edgeEnd = edgeIndex;
-            vertexes1[edges[face->edge[edgeBegin - 1]].v1].e[2] = static_cast<int>(edges.size());
+            vertexes[edges[face->edge[edgeBegin - 1]].v1].e[2] = static_cast<int>(edges.size());
             for (edgeIndex = edgeBegin; edgeIndex < edgeEnd; ++edgeIndex)
             {
                 face->edge[edgeIndex] = static_cast<int>(edges.size());
@@ -156,9 +156,9 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
                 {
                     v1 = edges[face->edge[edgeIndex - 1]].v2;
                 }
-                edges.push_back(Edge(faceIndex, -1, v1, static_cast<int>(vertexes1.size())));
+                edges.push_back(Edge(faceIndex, -1, v1, static_cast<int>(vertexes.size())));
 
-                vertexes1.push_back(Vertex(static_cast<int>(edges.size()) - 1,
+                vertexes.push_back(Vertex(static_cast<int>(edges.size()) - 1,
                     static_cast<int>(edges.size()), -1, currentCycle, currentVertexIdx, false));
 
                 ++currentVertexIdx;
@@ -167,12 +167,12 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             face->edge[edgeIndex] = static_cast<int>(edges.size());
             int v2 = edges[face->edge[0]].v2;
             if (edgeIndex != face->size - 1) v2 = edges[face->edge[edgeIndex + 1]].v2;
-            vertexes1[v2].e[2] = static_cast<int>(edges.size());
+            vertexes[v2].e[2] = static_cast<int>(edges.size());
             int v1 = edges[face->edge[edgeIndex - 1]].v2;
             if (edgeBegin == edgeEnd)
             {
                 v1 = edges[face->edge[edgeIndex - 1]].v1;
-                vertexes1[v1].e[2] = static_cast<int>(edges.size());
+                vertexes[v1].e[2] = static_cast<int>(edges.size());
             }
             edges.push_back(Edge(faceIndex, -1, v1, v2));
         }// main loop of creating faces
@@ -189,9 +189,9 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
         {
             v = edges[face->edge[0]].v1;
         }
-        vertexes1[v].lastFace = true;
-        vertexes1[v].cycleVertexIndex = 0;
-        vertexes1[v].cycle = currentCycle;
+        vertexes[v].lastFace = true;
+        vertexes[v].cycleVertexIndex = 0;
+        vertexes[v].cycle = currentCycle;
 
         for (int i = 1; i < face->size; ++i)
         {
@@ -205,18 +205,16 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             {
                 v = edges[j].v2;
             }
-            vertexes1[v].lastFace = true;
-            vertexes1[v].cycleVertexIndex = i;
-            vertexes1[v].cycle = currentCycle;
+            vertexes[v].lastFace = true;
+            vertexes[v].cycleVertexIndex = i;
+            vertexes[v].cycle = currentCycle;
         }
-        //creating output graph
-        //graph.resize(vertexes.size());
-        for (size_t i = 0; i < vertexes1.size(); ++i)
+        for (size_t i = 0; i < vertexes.size(); ++i)
         {
-           vertexes1[i].index = i;
+           vertexes[i].index = i;
         }
         //sorting, last face vertexes will be on the end
-        std::sort(vertexes1.begin(), vertexes1.end(), [](Vertex& a, Vertex& b) {
+        std::sort(vertexes.begin(), vertexes.end(), [](Vertex& a, Vertex& b) {
             if (a.lastFace == b.lastFace)
             {
                 if (a.cycle > b.cycle) return false;
@@ -242,22 +240,21 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             return true;
         });
         //reindexing vertexes
-        for (size_t vertexIndex = 0; vertexIndex < vertexes1.size(); ++vertexIndex)
+        for (size_t vertexIndex = 0; vertexIndex < vertexes.size(); ++vertexIndex)
         {
-            currentVertexIdx = vertexes1[vertexIndex].index;
+            currentVertexIdx = vertexes[vertexIndex].index;
             for (size_t edgeIndex = 0; edgeIndex < 3; ++edgeIndex)
             {
-                auto edge = &edges[vertexes1[vertexIndex].e[edgeIndex]];
+                auto edge = &edges[vertexes[vertexIndex].e[edgeIndex]];
                 if (edge->v1 == currentVertexIdx)
                     edge->v1 = static_cast<int>(vertexIndex);
                 else edge->v2 = static_cast<int>(vertexIndex);
             }
         }
         //creating vertexes output array
-        for (size_t vertexIndex = 0; vertexIndex < vertexes1.size(); ++vertexIndex)
+        for (size_t vertexIndex = 0; vertexIndex < vertexes.size(); ++vertexIndex)
         {
-            auto vertex = &(vertexes1[vertexIndex]);
-            currentVertexIdx = vertex->index;
+            auto vertex = &(vertexes[vertexIndex]);
             for (int edgeIndex = 0; edgeIndex < 3; ++edgeIndex)
             {
                 auto edge = &edges[vertex->e[edgeIndex]];
@@ -268,23 +265,21 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             
         }
         //creating output graph
-        graph.resize(vertexes1.size());
-        for (size_t i = 0; i < vertexes1.size(); ++i)
+        graph.resize(vertexes.size());
+        for (size_t i = 0; i < vertexes.size(); ++i)
         {
-            graph[i].e[0] = vertexes1[i].e[0];
-            graph[i].e[1] = vertexes1[i].e[1];
-            graph[i].e[2] = vertexes1[i].e[2];
-            graph[i].e[3] = vertexes1[i].cycle;
-            graph[i].e[4] = (int)vertexes1[i].cycleVertexIndex;
-            if( vertexes1[i].lastFace)
-            graph[i].e[5] = 1000;
-            else graph[i].e[5] = 0;
+            graph[i].e[0] = vertexes[i].e[0];
+            graph[i].e[1] = vertexes[i].e[1];
+            graph[i].e[2] = vertexes[i].e[2];
+            graph[i].cycle = vertexes[i].cycle;
+            graph[i].cycleVertexIndex = vertexes[i].cycleVertexIndex;
+            graph[i].lastFace = vertexes[i].lastFace;
         }
         LOG(L"The graph is complete.");
     }
     catch (...)
     {
-        LOG_ERROR(L"Error! The graph is not built. ");
+        LOG_ERROR(L"Error! The graph is not built.");
         return Result::FAIL;
     }
     return Result::OK;

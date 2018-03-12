@@ -59,8 +59,8 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
 
     for (size_t i = 0; i < graphSize; ++i)
     {
-        v.push_back(static_cast<double>(graph[i].e[3]));
-        v.push_back(static_cast<double>(graph[i].e[4]));
+        v.push_back(static_cast<double>(graph[i].x));
+        v.push_back(static_cast<double>(graph[i].y));
     }
        
     //основной счет
@@ -185,8 +185,8 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
     
     for (size_t i = 0; i < graphSize; ++i)
     {
-        graph[i].e[3] = static_cast<int>(v[i * 2]);
-        graph[i].e[4] = static_cast<int>(v[i * 2 + 1]);
+        graph[i].x = static_cast<int>(v[i * 2]);
+        graph[i].y = static_cast<int>(v[i * 2 + 1]);
     }
     std::wcout << L"Граф растянут." << std::endl;
     return Result::OK;
