@@ -191,13 +191,12 @@ void Expand::dive(size_t n, bool p)
     }
     else
     {
-        //const size_t n_1 = n - 1;
         dive(n - 1, !p);
         auto an = sizeXY * n;
         if (p)
-            //итог в wp1----------------------------
+        //result in wp1
         {
-            //вычисляем  - w * A_1
+            //calc  - w * A_1
             for (size_t i = 0; i < n; ++i)
             {
                 auto tEx = 0.0;
@@ -233,16 +232,16 @@ void Expand::dive(size_t n, bool p)
                     wp1[ai + j] = wm[ai + j] + wp1[an + j] * tEx;
                 }
             }
-            //вычисляем  - beta * w * A_1
+            //calc  - beta * w * A_1
             for (size_t i = 0; i < n; ++i)
             {
                 wp1[an + i] *= det1;
             }
         }
-        //итог в wm----------------------------
+        //result in wm
         else
         {
-            //вычисляем  - w * A_1
+            //calc  - w * A_1
             for (size_t i = 0; i < n; ++i)
             {
                 auto tEx = 0.0;
@@ -277,14 +276,13 @@ void Expand::dive(size_t n, bool p)
                     wm[ai + j] = wp1[ai + j] + wm[an + j] * tEx;
                 }
             }
-            //вычисляем  - beta * w * A_1
+            //calc  - beta * w * A_1
             for (size_t i = 0; i < n; ++i)
             {
                 wm[an + i] *= det1;
             }
         }
     }
-    //Log('Вынырнули с ' + IntToStr(n) + 'уровня');
 }
 
 void Expand::inverseMatrix(size_t n)
