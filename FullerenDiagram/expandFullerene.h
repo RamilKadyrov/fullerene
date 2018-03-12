@@ -16,5 +16,5 @@ private:
     std::vector<double> wp;
     std::vector<double> wp1;
     void dive(size_t n, bool p);
-    void inverseMatrixOp(size_t n);
+    void inverseMatrix(size_t n);
 };

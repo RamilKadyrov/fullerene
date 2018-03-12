@@ -118,7 +118,7 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             if (k > 3)
             {
                 LOG( L"Inverse matrix calculation. Size: " << sizeXYN << " x " << sizeXYN);
-                inverseMatrixOp(sizeXYN - 1);
+                inverseMatrix(sizeXYN);
                 k = 0;
             }
             ++k;
@@ -287,7 +287,7 @@ void Expand::dive(size_t n, bool p)
     //Log('Вынырнули с ' + IntToStr(n) + 'уровня');
 }
 
-void Expand::inverseMatrixOp(size_t n)
+void Expand::inverseMatrix(size_t n)
 {
-    dive(n, true);
+    dive(n - 1, true);
 }
