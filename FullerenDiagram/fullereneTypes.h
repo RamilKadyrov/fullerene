@@ -19,7 +19,8 @@ struct Vertex {
     int e0, e1, e2; // edges indexes
     int cycle;
     int x, y;
-    bool last_face;
+    int index;
+    bool lastFace;
     Vertex() { }
     Vertex(int e0, int e1, int e2, int e3, int e4, int e5)
     {
@@ -30,6 +31,15 @@ struct Vertex {
         e[3] = e3;
         e[4] = e4;
         e[5] = e5;
+    }
+    Vertex(int _e0, int _e1, int _e2, int _cycle, int _index, bool _lastFace)
+    {
+        e0 = _e0;
+        e1 = _e1;
+        e2 = _e2;
+        cycle = _cycle;
+        index = _index;
+        lastFace = _lastFace;
     }
     //e[0],e[1],e[2] - index (edge or vertex)
     //e[3] - cycle or x coordinate
