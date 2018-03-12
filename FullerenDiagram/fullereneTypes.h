@@ -15,7 +15,7 @@ struct  Edge {
 };
 
 struct Vertex {
-    int e[3];  // edges indexes
+    int e[3];  // edges or vertexes indexes
     int cycle;
     int x, y, r;
     size_t cycleVertexIndex;
