@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "fullereneTypes.h"
+struct Vertex;
 class Expand
 {
 public:
@@ -11,7 +11,6 @@ public:
 
     Result expand(std::vector<Vertex>& graph, const double gRadius, const size_t nSide);
 private:
-     //: array[0..maxVertex, 0..maxVertex] of Extended;
     size_t sizeXY;
     std::vector<double> wm;
     std::vector<double> wp;

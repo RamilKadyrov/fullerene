@@ -6,14 +6,44 @@
 #include "buildFullerene.h"
 
 
+bool Build::fillEV(const int faceIndex, const int edgeIndex, int vertexIndex, Edge **edge)
+{
+    int eIdx = 2;
 
-Result buildGraph(const Params& params, std::vector<Vertex>& graph)
+    while ((-1 != vertexes[vertexIndex].e[eIdx]) && (0 != eIdx))
+    {
+        --eIdx;
+    }
+    //check a free edge of the vertex 
+    if (-1 == vertexes[vertexIndex].e[eIdx])
+    {
+        return true;
+    }
+    eIdx = 2;
+    while ((-1 != edges[vertexes[vertexIndex].e[eIdx]].s2) && (0 != eIdx))
+    {
+        --eIdx;
+    }
+    if (-1 != edges[vertexes[vertexIndex].e[eIdx]].s2)
+    {
+        LOG_ERROR(L"No free edge found.");
+        throw std::exception();
+    }
+    //occuping it
+    auto face = &faces[faceIndex];
+    face->edge[edgeIndex] = vertexes[vertexIndex].e[eIdx];
+
+    (*edge) = &edges[vertexes[vertexIndex].e[eIdx]];
+    (*edge)->s2 = faceIndex;
+    //vertexIndex = edge->v1;
+    LOG(L"Edge occupied by the face " << edge->s1 << L", edge"
+        << face->edge[edgeIndex] << L", edge index on face " << edgeIndex);
+    return false;
+}
+
+Result Build::graph(const Params& params, std::vector<Vertex>& graph)
 {
     LOG(L"Building graph...");
-
-    std::vector<Face> faces;
-    std::vector<Edge> edges;
-    std::vector<Vertex> vertexes, vertexes1;
 
     faces.resize(params.faceNum);
     vertexes.reserve(params.faceNum * 2);
@@ -40,7 +70,7 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
 
             int e0 = edgeIndex - 1;
             if (0 == edgeIndex) e0 = face->size - 1;
-            vertexes.push_back(Vertex(e0, edgeIndex, -1, 0, static_cast<int>(vertexes.size()), 0));
+            vertexes.push_back(Vertex(e0, edgeIndex, -1, currentCycle, static_cast<int>(vertexes.size()), 0));
 
             vertexes1.push_back(Vertex(e0, edgeIndex, -1, currentCycle, static_cast<int>(vertexes.size()), false));
         }
@@ -50,7 +80,7 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
         int currentVertexIdx = 0;
         ++currentCycle;
         bool newCycle = false;
-        
+
         for (int faceIndex = 1; faceIndex < params.faceNum; ++faceIndex)
         {
             if (newCycle)
@@ -83,45 +113,15 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
             }
             //Founded it. Use it.
             LOG(L"Unoccupied edge " << edgeIndex << L", free face " << faceIndex);
-            face->edge[0] = freeFace->edge[edgeIndex];
 
+            //fill edges and vertexes of the current face
+            face->edge[0] = freeFace->edge[edgeIndex];
             auto edge = &(edges[face->edge[0]]);
             edge->s2 = faceIndex;
-            //fill edges and vertexes of the current face
+            
             for (edgeIndex = 1; edgeIndex < face->size; ++edgeIndex)
             {
-                //if the vertex have 3 connections
-                int vertexIndex = 3;
-                do
-                {
-                    --vertexIndex;
-                } while ((-1 != vertexes[edge->v1].e[vertexIndex]) && (0 != vertexIndex));
-                //then search a free edge of the vertex 
-                if (-1 == vertexes[edge->v1].e[vertexIndex])
-                {
-                    break;
-                }
-                    vertexIndex = 3;
-                    do
-                    {
-                        --vertexIndex;
-                    } while ((-1 != edges[vertexes[edge->v1].e[vertexIndex]].s2) && (0 != vertexIndex));
-                    if (-1 != edges[vertexes[edge->v1].e[vertexIndex]].s2)
-                    {
-                        LOG_ERROR(L"No free edge found.");
-                        throw std::exception();
-                    }
-                    //occuping it
-                    face->edge[edgeIndex] = vertexes[edge->v1].e[vertexIndex];
-                    edge = &edges[vertexes[edge->v1].e[vertexIndex]];
-                    edge->s2 = faceIndex;
-                    LOG(L"Edge occupied by the face " << edge->s1 << L", edge"
-                        << face->edge[edgeIndex] << L", edge index on face " << edgeIndex);
-                /*}
-                else
-                {
-                    break;
-                }*/
+                if (fillEV(faceIndex, edgeIndex, edge->v1, &edge)) break;
             }
             //If all edges occupied, then continue
             if (edgeIndex == face->size)
@@ -140,41 +140,11 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
             edge = &edges[face->edge[0]];
             for (edgeIndex = face->size - 1; edgeIndex >= 2; --edgeIndex)
             {
-                //if vertex have three connection
-                int vertexIndex = 3;
-                do
+                if (fillEV(faceIndex, edgeIndex, edge->v2, &edge)) break;
+                if (edge->s1 == targetFaceIndex)
                 {
-                    --vertexIndex;
-                } while ((-1 != vertexes[edge->v2].e[vertexIndex]) && (0 != vertexIndex));
-
-                //then search a free edge
-                if (-1 != vertexes[edge->v2].e[vertexIndex])
-                {
-                    vertexIndex = 3;
-                    do
-                    {
-                        --vertexIndex;
-                    } while ((-1 != edges[vertexes[edge->v2].e[vertexIndex]].s2) && (0 != vertexIndex));
-                    if (edges[vertexes[edge->v2].e[vertexIndex]].s2 != -1)
-                    {
-                        LOG_ERROR(L"No free edge found.");
-                        throw std::exception();
-                    }
-                    //occuping it
-                    face->edge[edgeIndex] = vertexes[edge->v2].e[vertexIndex];
-                    edge = &edges[vertexes[edge->v2].e[vertexIndex]];
-                    edge->s2 = faceIndex;
-                    LOG(L"The edge occupied by the face " << edge->s1 << L", edge" << face->edge[edgeIndex]
-                        << L", edge index on the face " << edgeIndex);
-                    if (edge->s1 == targetFaceIndex)
-                    {
-                        LOG(L"Cycle " << targetFaceIndex);
-                        newCycle = true;
-                    }
-                }
-                else
-                {
-                    break;
+                    LOG(L"Cycle " << targetFaceIndex);
+                    newCycle = true;
                 }
             }
             //creating the face's new edges and vertexes
@@ -185,11 +155,16 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
                 face->edge[edgeIndex] = static_cast<int>(edges.size());
 
                 int v1 = edges[face->edge[edgeIndex - 1]].v1;
-                if (edgeIndex != edgeBegin) v1 = edges[face->edge[edgeIndex - 1]].v2;
+                if (edgeIndex != edgeBegin)
+                {
+                    v1 = edges[face->edge[edgeIndex - 1]].v2;
+                }
                 edges.push_back(Edge(faceIndex, -1, v1, static_cast<int>(vertexes.size())));
 
                 vertexes.push_back(Vertex(static_cast<int>(edges.size()) - 1,
                     static_cast<int>(edges.size()), -1, currentCycle, currentVertexIdx, 0));
+                vertexes1.push_back(Vertex(static_cast<int>(edges.size()) - 1,
+                    static_cast<int>(edges.size()), -1, currentCycle, currentVertexIdx, false));
 
                 ++currentVertexIdx;
             }
@@ -209,39 +184,43 @@ Result buildGraph(const Params& params, std::vector<Vertex>& graph)
         //marking last face
         face = &faces[params.faceToExpand];
         ++currentCycle;
+        int v;
         if ((edges[face->edge[0]].v1 == edges[face->edge[1]].v1)
             || (edges[face->edge[0]].v1 == edges[face->edge[1]].v2))
         {
-            auto v2 = edges[face->edge[0]].v2;
-            vertexes[v2].e[5] = 1000;
-            vertexes[v2].e[4] = 0;
-            vertexes[v2].e[3] = currentCycle;
+            v = edges[face->edge[0]].v2;
         }
         else
         {
-            auto v1 = edges[face->edge[0]].v1;
-            vertexes[v1].e[5] = 1000;
-            vertexes[v1].e[4] = 0;
-            vertexes[v1].e[3] = currentCycle;
+            v = edges[face->edge[0]].v1;
         }
+        vertexes[v].e[5] = 1000;
+        vertexes[v].e[4] = 0;
+        vertexes[v].e[3] = currentCycle;
+
+        vertexes1[v].lastFace = true;
+        vertexes1[v].index = 0;
+        vertexes1[v].cycle = currentCycle;
+
         for (int i = 1; i < face->size; ++i)
         {
             int j = face->edge[i];
             if ((edges[j].v1 == edges[face->edge[i - 1]].v1)
                 || (edges[j].v1 == edges[face->edge[i - 1]].v2))
             {
-                auto v1 = edges[j].v1;
-                vertexes[v1].e[5] = 1000;
-                vertexes[v1].e[4] = i;
-                vertexes[v1].e[3] = currentCycle;
+                v = edges[j].v1;
             }
             else
             {
-                auto v2 = edges[j].v2;
-                vertexes[v2].e[5] = 1000;
-                vertexes[v2].e[4] = i;
-                vertexes[v2].e[3] = currentCycle;
+                v = edges[j].v2;
             }
+            vertexes[v].e[5] = 1000;
+            vertexes[v].e[4] = i;
+            vertexes[v].e[3] = currentCycle;
+
+            vertexes1[v].lastFace = true;
+            vertexes1[v].index = i;
+            vertexes1[v].cycle = currentCycle;
         }
         //creating output graph
         graph.resize(vertexes.size());
