@@ -34,11 +34,11 @@ int parseParams(std::ifstream* _infile, Params& _params)
         return 2;
     }
     _params.faceNum = p[0];
-    _params.faceToExpand = p[1];
+    _params.faceToExpand = p[1] - 1;
     for (std::size_t i = 2; i < p.size(); ++i)
     {
-        if (_params.faceToExpand == p[i]) _params.nSide = 5;
-        _params.pentagons.push_back(p[i]);
+        if (_params.faceToExpand == p[i] - 1 ) _params.nSide = 5;
+        _params.pentagons.push_back(p[i] - 1);
     }
     return 0;
 }

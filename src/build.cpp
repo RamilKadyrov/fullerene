@@ -24,11 +24,7 @@ bool Build::fillEV(const int faceIndex, const int edgeIndex, const Vertex& verte
     {
         --eIdx;
     }
-    if (-1 != edges[vertex.e[eIdx]].s2)
-    {
-        LOG_ERROR("No free edge found.");
-        exit(1);
-    }
+    
     //occuping it
     faces[faceIndex].edge[edgeIndex] = vertex.e[eIdx];
 
