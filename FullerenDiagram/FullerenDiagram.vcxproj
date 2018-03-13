@@ -151,6 +151,7 @@
     <ClCompile Include="draw.cpp" />
     <ClCompile Include="expand.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="inverseMatrix.cpp" />
     <ClCompile Include="paint.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -158,6 +159,7 @@
     <ClInclude Include="drawFullerene.h" />
     <ClInclude Include="expandFullerene.h" />
     <ClInclude Include="fullereneTypes.h" />
+    <ClInclude Include="inverseMatrix.h" />
     <ClInclude Include="paintFullerene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

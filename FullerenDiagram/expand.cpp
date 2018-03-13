@@ -7,13 +7,14 @@
 #include "fullereneTypes.h" 
 #include "paintFullerene.h"
 #include "expandFullerene.h" 
+#include "inverseMatrix.h"
 
 inline double sqr(double x)
 {
     return x * x;
 }
 
-Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
+Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
 {
     std::vector<double> f, v; 
     double residue, residueOld;
@@ -30,11 +31,13 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
     const size_t sizeXYN = sizeN * 2;
     const size_t mtrxSize = 4 * graphSize * graphSize;
 
-    sizeXY = 2 * graphSize;
+    size_t sizeXY = 2 * graphSize;
 
-    wp.resize(mtrxSize);
-    wp1.resize(mtrxSize);
-    wm.resize(mtrxSize);
+    /*d.m.resize(mtrxSize);
+    d.m_1.resize(mtrxSize);
+    wm.resize(mtrxSize);*/
+    Matrix d(sizeXY);
+
     f.resize(sizeXY);
     v.reserve(sizeXY);
 
@@ -62,37 +65,35 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
             while (overlap)
             {
                 overlap = false;
-                for (size_t i = 0; i < sizeN && !overlap; ++i)
+                for (size_t i2 = 0, i = 0; i < sizeN && !overlap;  ++i, i2 += 2 )
                 {
-                    f[i * 2] = 0;
-                    f[i * 2 + 1] = 0;
+                    f[i2] = 0;
+                    f[i2 + 1] = 0;
                     for (size_t edge = 0; edge < 3 && !overlap; ++edge)
                     {
                         auto j = graph[i].e[edge] * 2;
-                        auto res = sqrt(sqr(v[j] - v[i * 2]) + sqr(v[j + 1] - v[i * 2 + 1]));
+                        auto res = sqrt(sqr(v[j] - v[i2]) + sqr(v[j + 1] - v[i2 + 1]));
                         auto fL = res - L0;
                         if (res != 0)
                         {
-                            f[i * 2] += fL * (v[j] - v[i * 2]) / res;
-                            f[i * 2 + 1] += fL * (v[j + 1] - v[i * 2 + 1]) / res;
+                            f[i2] += fL * (v[j] - v[i2]) / res;
+                            f[i2 + 1] += fL * (v[j + 1] - v[i2 + 1]) / res;
                         }
                         else
                         {
                             overlap = true;
                             auto rnd = (double)rand() / RAND_MAX - 0.5;
-                            v[i * 2] = v[i * 2] + rnd;
-                            v[i * 2] = v[i * 2 + 1] - rnd;
+                            v[i2] +=  rnd;
+                            v[i2 + 1] -= rnd;
                         }
                     }
 
                 }
             }
-            std::fill(wp.begin(), wp.end(), 0.0);
+            d.fillZero();
             //derivative matrix calculation
-            for (size_t i = 0; i < sizeN; ++i)
+            for (size_t i2 = 0, i = 0; i < sizeN;  ++i, i2 += 2)
             {
-                auto i2 = i * 2;
-                auto ia2 = i2 * sizeXY;
                 for (size_t edge = 0; edge < 3; ++edge)
                 {
                     auto j = graph[i].e[edge] * 2;
@@ -102,32 +103,31 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
                     auto fY = sqr(v[j] - v[i2]) * res - 1.0;
                     auto fXY = (v[j + 1] - v[i2 + 1]) * (v[i2] - v[j]) * res;
                     
-                    wp[ia2 + i2] += fX;
-                    wp[ia2 + sizeXY + i2 + 1] += fY;
-                    wp[ia2 + i2 + 1] += fXY;
-                    wp[ia2 + sizeXY + i2] += fXY;
+                    d[i2][i2] += fX;
+                    d[i2 + 1][ i2 + 1] += fY;
+                    d[i2][i2 + 1] += fXY;
+                    d[i2 + 1][i2] += fXY;
                     // xi
-                    wp[ia2 + j] = -fX;
-                    wp[ia2 + sizeXY + j] = -fXY;
+                    d[i2][j] = -fX;
+                    d[i2 + 1][j] = -fXY;
                     // yi
-                    wp[ia2 + sizeXY + j + 1] = -fY;
-                    wp[ia2 + j + 1] = -fXY;
+                    d[i2 + 1][j + 1] = -fY;
+                    d[i2][j + 1] = -fXY;
                 }
             }
             //inverse matrix
             if (k > 3)
             {
                 LOG( L"Inverse matrix calculation. Size: " << sizeXYN << " x " << sizeXYN);
-                inverseMatrix(sizeXYN);
+                d.inverse(sizeXYN);
                 k = 0;
             }
             ++k;
             for (size_t i = 0; i < sizeXYN; ++i)
             {
-                auto ia = sizeXY * i;
                 for (size_t j = 0; j < sizeXYN; ++j)
                 {
-                    v[i] -= wp1[ia + j] * f[j];
+                    v[i] -= d(i)[j] * f[j];
                 }
             }
 
@@ -149,9 +149,9 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
         } while (residue > epsilon);
         LOG( L"Iteration number: "<< l );
         quit = true;
-        for (size_t i = 0; i < sizeN; ++i)
+        for (size_t i = 0; i < 2 * sizeN; i += 2)
         {
-            if (sqr(v[i * 2] - rm) + sqr(v[i * 2 + 1] - rm) >= sqr(rm * 0.9))
+            if (sqr(v[i] - rm) + sqr(v[i + 1] - rm) >= sqr(rm * 0.9))
             {
                 quit = false;
                 break;
@@ -160,132 +160,11 @@ Result Expand::expand(std::vector<Vertex>& graph, const double rm, const size_t 
 
     }
     
-    for (size_t i = 0; i < graphSize; ++i)
+    for (size_t i = 0, i2 = 0; i < graphSize; ++i, i2 += 2)
     {
-        graph[i].x = static_cast<int>(v[i * 2]);
-        graph[i].y = static_cast<int>(v[i * 2 + 1]);
+        graph[i].x = static_cast<int>(v[i2]);
+        graph[i].y = static_cast<int>(v[i2 + 1]);
     }
     LOG( L"The graph is expanded" );
     return Result::OK;
-}
-
-void Expand::dive(size_t n, bool p)
-{
-    if (1 == n)
-    {
-        auto det1 = 1.0 / (wp[0] * wp[sizeXY + 1] - wp[1] * wp[sizeXY]);
-        if (p)
-        {
-            wp1[0]       = wp[sizeXY + 1] * det1;
-            wp1[sizeXY + 1] = wp[0] * det1;
-            wp1[sizeXY]     = -wp[1] * det1;
-            wp1[1]       = -wp[sizeXY] * det1;
-        }
-        else
-        {
-            wm[0]       = wp[sizeXY + 1] * det1;
-            wm[sizeXY + 1] = wp[0] * det1;
-            wm[sizeXY]     = -wp[1] * det1;
-            wm[1]       = -wp[sizeXY] * det1;
-        }
-    }
-    else
-    {
-        dive(n - 1, !p);
-        auto an = sizeXY * n;
-        if (p)
-        //result in wp1
-        {
-            //calc  - w * A_1
-            for (size_t i = 0; i < n; ++i)
-            {
-                auto tEx = 0.0;
-                for (size_t j = 0; j < n; ++j)
-                {
-                    tEx -= wp[an + j] * wm[sizeXY * j + i];
-                }
-                wp1[an + i] = tEx;
-            }
-            //beta
-            auto det = wp[an + n];
-            for (size_t j = 0; j < n; ++j)
-            {
-                det += wp1[an + j] * wp[sizeXY * j + n];
-            }
-            auto det1 = 1.0 / det;
-            wp1[an + n] = det1;
-
-            // - beta * A_1 * v
-            for (size_t i = 0; i < n; ++i)
-            {
-                auto tEx = 0.0;
-                auto ai = sizeXY * i;
-                for (size_t j = 0; j < n; ++j)
-                {
-                    tEx = tEx - wm[ai + j] * wp[sizeXY *j + n];
-                }
-                tEx *= det1;
-                wp1[ai + n] = tEx;
-                // A_1 + beta * A_1 * v * w * A_1
-                for(size_t j = 0; j < n; ++j)
-                {
-                    wp1[ai + j] = wm[ai + j] + wp1[an + j] * tEx;
-                }
-            }
-            //calc  - beta * w * A_1
-            for (size_t i = 0; i < n; ++i)
-            {
-                wp1[an + i] *= det1;
-            }
-        }
-        //result in wm
-        else
-        {
-            //calc  - w * A_1
-            for (size_t i = 0; i < n; ++i)
-            {
-                auto tEx = 0.0;
-                for (size_t j = 0; j < n; ++j)
-                {
-                    tEx -= wp[an + j] * wp1[sizeXY * j + i];
-                }
-                wm[an + i] = tEx;
-            }
-            //beta
-            auto det = wp[an + n];
-            for (size_t j = 0; j < n; ++j)
-            {
-                det += wm[an + j] * wp[sizeXY * j + n];
-            }
-            auto det1 = 1.0 / det;
-            wm[an + n] = det1;
-            // - beta * A_1 * v
-            for (size_t i = 0; i < n; ++i)
-            {
-                auto tEx = 0.0;
-                auto ai = sizeXY * i;
-                for (size_t j = 0; j < n; ++j)
-                {
-                    tEx -= wp1[ai + j] * wp[sizeXY * j + n];
-                }
-                tEx *= det1;
-                wm[ai + n] = tEx;
-                // A_1 + beta * A_1 * v * w * A_1
-                for (size_t j = 0; j < n; ++j)
-                {
-                    wm[ai + j] = wp1[ai + j] + wm[an + j] * tEx;
-                }
-            }
-            //calc  - beta * w * A_1
-            for (size_t i = 0; i < n; ++i)
-            {
-                wm[an + i] *= det1;
-            }
-        }
-    }
-}
-
-void Expand::inverseMatrix(size_t n)
-{
-    dive(n - 1, true);
 }
