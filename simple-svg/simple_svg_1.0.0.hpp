@@ -211,7 +211,7 @@ namespace svg
             if (transparent)
                 ss << L"none";
             else
-                ss << L"rgb(L" << red << L"," << green << L"," << blue << L")";
+                ss << L"rgb(" << red << L"," << green << L"," << blue << L")";
             return ss.str();
         }
     private:
