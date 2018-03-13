@@ -22,8 +22,9 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{5629B162-EC9B-49EE-BA50-AC29A48AEB0D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>FullerenDiagram</RootNamespace>
+    <RootNamespace>fullerene</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <ProjectName>fulleren</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
