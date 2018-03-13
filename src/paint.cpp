@@ -3,7 +3,7 @@
 #include "fullereneTypes.h" 
 #include "../simple-svg/simple_svg_1.0.0.hpp"
 
-Result paint(const wchar_t* outfileName, std::vector<Vertex>& graph)
+Result paint(const char* outfileName, std::vector<Vertex>& graph)
 {
     int minX = graph[0].x;
     int maxX = minX;
@@ -18,7 +18,7 @@ Result paint(const wchar_t* outfileName, std::vector<Vertex>& graph)
     }
 
     svg::Dimensions dimensions(maxX - minX, maxY - minY);
-    svg::Document doc(outfileName, svg::Layout(dimensions, svg::Layout::BottomLeft));
+    svg::Document doc(std::string(outfileName), svg::Layout(dimensions, svg::Layout::BottomLeft));
     for (std::size_t i = 0; i < graph.size(); ++i)
     {
         Vertex &v = graph[i];

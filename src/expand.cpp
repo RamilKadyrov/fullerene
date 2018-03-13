@@ -21,7 +21,7 @@ Result expand(std::vector<Vertex>& graph, const double rm, const std::size_t nSi
 
     if ((nSide != 5) && (nSide != 6))
     {
-        LOG_ERROR(L"Last face contain incorrect number of edges:" << nSide);
+        LOG_ERROR("Last face contain incorrect number of edges:" << nSide);
         return Result::FAIL;
     }
 
@@ -55,7 +55,7 @@ Result expand(std::vector<Vertex>& graph, const double rm, const std::size_t nSi
         }
         int k = 5;
         residueOld = std::numeric_limits<double>::max();
-        LOG(L"Expanding the graph...");
+        LOG("Expanding the graph...");
         do {
             bool overlap = true;
             while (overlap)
@@ -114,7 +114,7 @@ Result expand(std::vector<Vertex>& graph, const double rm, const std::size_t nSi
             //inverse matrix
             if (k > 3)
             {
-                LOG(L"Inverse matrix calculation. Size: " << sizeXYN << " x " << sizeXYN);
+                LOG("Inverse matrix calculation. Size: " << sizeXYN << " x " << sizeXYN);
                 d.inverse(sizeXYN);
                 k = 0;
             }
@@ -141,9 +141,9 @@ Result expand(std::vector<Vertex>& graph, const double rm, const std::size_t nSi
             {
                 residueOld = residue;
             }
-            LOG(L"Residue = " << residue);
+            LOG("Residue = " << residue);
         } while (residue > epsilon);
-        LOG(L"Iteration number: " << l);
+        LOG("Iteration number: " << l);
         quit = true;
         for (std::size_t i = 0; i < 2 * sizeN; i += 2)
         {
@@ -159,6 +159,6 @@ Result expand(std::vector<Vertex>& graph, const double rm, const std::size_t nSi
         graph[i].x = static_cast<int>(v[i2]);
         graph[i].y = static_cast<int>(v[i2 + 1]);
     }
-    LOG(L"The graph is expanded");
+    LOG("The graph is expanded");
     return Result::OK;
 }

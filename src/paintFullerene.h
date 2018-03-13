@@ -3,4 +3,4 @@
 #include <vector>
 
 #include "fullereneTypes.h"
-Result paint(const wchar_t* outfile, std::vector<Vertex>& graph);
+Result paint(const char* outfile, std::vector<Vertex>& graph);

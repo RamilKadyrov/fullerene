@@ -43,24 +43,24 @@ namespace svg
 {
     // Utility XML/String Functions.
     template <typename T>
-    inline std::wstring attribute(std::wstring const & attribute_name,
-        T const & value, std::wstring const & unit = L"")
+    inline std::string attribute(std::string const & attribute_name,
+        T const & value, std::string const & unit = "")
     {
-        std::wstringstream ss;
-        ss << attribute_name << L"=\"" << value << unit << L"\" ";
+        std::stringstream ss;
+        ss << attribute_name << "=\"" << value << unit << "\" ";
         return ss.str();
     }
-    inline std::wstring elemStart(std::wstring const & element_name)
+    inline std::string elemStart(std::string const & element_name)
     {
-        return L"\t<" + element_name + L" ";
+        return "\t<" + element_name + " ";
     }
-    inline std::wstring elemEnd(std::wstring const & element_name)
+    inline std::string elemEnd(std::string const & element_name)
     {
-        return L"</" + element_name + L">\n";
+        return "</" + element_name + ">\n";
     }
-    inline std::wstring emptyElemEnd()
+    inline std::string emptyElemEnd()
     {
-        return L"/>\n";
+        return "/>\n";
     }
 
     // Quick optional return type.  This allows functions to return an invalid
@@ -171,7 +171,7 @@ namespace svg
     public:
         Serializeable() { }
         virtual ~Serializeable() { };
-        virtual std::wstring toString(Layout const & layout) const = 0;
+        virtual std::string toString(Layout const & layout) const = 0;
     };
 
     class Color : public Serializeable
@@ -205,13 +205,13 @@ namespace svg
             }
         }
         virtual ~Color() { }
-        std::wstring toString(Layout const &) const
+        std::string toString(Layout const &) const
         {
-            std::wstringstream ss;
+            std::stringstream ss;
             if (transparent)
-                ss << L"none";
+                ss << "none";
             else
-                ss << L"rgb(" << red << L"," << green << L"," << blue << L")";
+                ss << "rgb(" << red << "," << green << "," << blue << ")";
             return ss.str();
         }
     private:
@@ -234,10 +234,10 @@ namespace svg
         Fill(Color::Defaults color) : color(color) { }
         Fill(Color color = Color::Transparent)
             : color(color) { }
-        std::wstring toString(Layout const & layout) const
+        std::string toString(Layout const & layout) const
         {
-            std::wstringstream ss;
-            ss << attribute(L"fill", color.toString(layout));
+            std::stringstream ss;
+            ss << attribute("fill", color.toString(layout));
             return ss.str();
         }
     private:
@@ -249,16 +249,16 @@ namespace svg
     public:
         Stroke(double width = -1, Color color = Color::Transparent, bool nonScalingStroke = false)
             : width(width), color(color), nonScaling(nonScalingStroke) { }
-        std::wstring toString(Layout const & layout) const
+        std::string toString(Layout const & layout) const
         {
             // If stroke width is invalid.
             if (width < 0)
-                return std::wstring();
+                return std::string();
 
-            std::wstringstream ss;
-            ss << attribute(L"stroke-width", translateScale(width, layout)) << attribute(L"stroke", color.toString(layout));
+            std::stringstream ss;
+            ss << attribute("stroke-width", translateScale(width, layout)) << attribute("stroke", color.toString(layout));
             if (nonScaling)
-               ss << attribute(L"vector-effect", "non-scaling-stroke");
+               ss << attribute("vector-effect", "non-scaling-stroke");
             return ss.str();
         }
     private:
@@ -270,16 +270,16 @@ namespace svg
     class Font : public Serializeable
     {
     public:
-        Font(double size = 12, std::wstring const & family = L"Verdana") : size(size), family(family) { }
-        std::wstring toString(Layout const & layout) const
+        Font(double size = 12, std::string const & family = "Verdana") : size(size), family(family) { }
+        std::string toString(Layout const & layout) const
         {
-            std::wstringstream ss;
-            ss << attribute(L"font-size", translateScale(size, layout)) << attribute(L"font-family", family);
+            std::stringstream ss;
+            ss << attribute("font-size", translateScale(size, layout)) << attribute("font-family", family);
             return ss.str();
         }
     private:
         double size;
-        std::wstring family;
+        std::string family;
     };
 
     class Shape : public Serializeable
@@ -288,16 +288,16 @@ namespace svg
         Shape(Fill const & fill = Fill(), Stroke const & stroke = Stroke())
             : fill(fill), stroke(stroke) { }
         virtual ~Shape() { }
-        virtual std::wstring toString(Layout const & layout) const = 0;
+        virtual std::string toString(Layout const & layout) const = 0;
         virtual void offset(Point const & offset) = 0;
     protected:
         Fill fill;
         Stroke stroke;
     };
     template <typename T>
-    inline std::wstring vectorToString(std::vector<T> collection, Layout const & layout)
+    inline std::string vectorToString(std::vector<T> collection, Layout const & layout)
     {
-        std::wstring combination_str;
+        std::string combination_str;
         for (unsigned i = 0; i < collection.size(); ++i)
             combination_str += collection[i].toString(layout);
 
@@ -310,12 +310,12 @@ namespace svg
         Circle(Point const & center, double diameter, Fill const & fill,
             Stroke const & stroke = Stroke())
             : Shape(fill, stroke), center(center), radius(diameter / 2) { }
-        std::wstring toString(Layout const & layout) const
+        std::string toString(Layout const & layout) const
         {
-            std::wstringstream ss;
-            ss << elemStart(L"circle") << attribute(L"cx", translateX(center.x, layout))
-                << attribute(L"cy", translateY(center.y, layout))
-                << attribute(L"r", translateScale(radius, layout)) << fill.toString(layout)
+            std::stringstream ss;
+            ss << elemStart("circle") << attribute("cx", translateX(center.x, layout))
+                << attribute("cy", translateY(center.y, layout))
+                << attribute("r", translateScale(radius, layout)) << fill.toString(layout)
                 << stroke.toString(layout) << emptyElemEnd();
             return ss.str();
         }
@@ -336,13 +336,13 @@ namespace svg
             Fill const & fill = Fill(), Stroke const & stroke = Stroke())
             : Shape(fill, stroke), center(center), radius_width(width / 2),
             radius_height(height / 2) { }
-        std::wstring toString(Layout const & layout) const
+        std::string toString(Layout const & layout) const
         {
-            std::wstringstream ss;
-            ss << elemStart(L"ellipse") << attribute(L"cx", translateX(center.x, layout))
-                << attribute(L"cy", translateY(center.y, layout))
-                << attribute(L"rx", translateScale(radius_width, layout))
-                << attribute(L"ry", translateScale(radius_height, layout))
+            std::stringstream ss;
+            ss << elemStart("ellipse") << attribute("cx", translateX(center.x, layout))
+                << attribute("cy", translateY(center.y, layout))
+                << attribute("rx", translateScale(radius_width, layout))
+                << attribute("ry", translateScale(radius_height, layout))
                 << fill.toString(layout) << stroke.toString(layout) << emptyElemEnd();
             return ss.str();
         }
@@ -364,13 +364,13 @@ namespace svg
             Fill const & fill = Fill(), Stroke const & stroke = Stroke())
             : Shape(fill, stroke), edge(edge), width(width),
             height(height) { }
-        std::wstring toString(Layout const & layout) const
+        std::string toString(Layout const & layout) const
         {
-            std::wstringstream ss;
-            ss << elemStart(L"rect") << attribute(L"x", translateX(edge.x, layout))
-                << attribute(L"y", translateY(edge.y, layout))
-                << attribute(L"width", translateScale(width, layout))
-                << attribute(L"height", translateScale(height, layout))
+            std::stringstream ss;
+            ss << elemStart("rect") << attribute("x", translateX(edge.x, layout))
+                << attribute("y", translateY(edge.y, layout))
+                << attribute("width", translateScale(width, layout))
+                << attribute("height", translateScale(height, layout))
                 << fill.toString(layout) << stroke.toString(layout) << emptyElemEnd();
             return ss.str();
         }
@@ -392,13 +392,13 @@ namespace svg
             Stroke const & stroke = Stroke())
             : Shape(Fill(), stroke), start_point(start_point),
             end_point(end_point) { }
-        std::wstring toString(Layout const & layout) const
+        std::string toString(Layout const & layout) const
         {
-            std::wstringstream ss;
-            ss << elemStart(L"line") << attribute(L"x1", translateX(start_point.x, layout))
-                << attribute(L"y1", translateY(start_point.y, layout))
-                << attribute(L"x2", translateX(end_point.x, layout))
-                << attribute(L"y2", translateY(end_point.y, layout))
+            std::stringstream ss;
+            ss << elemStart("line") << attribute("x1", translateX(start_point.x, layout))
+                << attribute("y1", translateY(start_point.y, layout))
+                << attribute("x2", translateX(end_point.x, layout))
+                << attribute("y2", translateY(end_point.y, layout))
                 << stroke.toString(layout) << emptyElemEnd();
             return ss.str();
         }
@@ -426,15 +426,15 @@ namespace svg
             points.push_back(point);
             return *this;
         }
-        std::wstring toString(Layout const & layout) const
+        std::string toString(Layout const & layout) const
         {
-            std::wstringstream ss;
-            ss << elemStart(L"polygon");
+            std::stringstream ss;
+            ss << elemStart("polygon");
 
-            ss << L"points=\"";
+            ss << "points=\"";
             for (unsigned i = 0; i < points.size(); ++i)
-                ss << translateX(points[i].x, layout) << L"," << translateY(points[i].y, layout) << L" ";
-            ss << L"\" ";
+                ss << translateX(points[i].x, layout) << "," << translateY(points[i].y, layout) << " ";
+            ss << "\" ";
 
             ss << fill.toString(layout) << stroke.toString(layout) << emptyElemEnd();
             return ss.str();
@@ -470,24 +470,24 @@ namespace svg
             paths.emplace_back();
        }
 
-       std::wstring toString(Layout const & layout) const
+       std::string toString(Layout const & layout) const
        {
-          std::wstringstream ss;
-          ss << elemStart(L"path");
+          std::stringstream ss;
+          ss << elemStart("path");
 
-          ss << L"d=\"";
+          ss << "d=\"";
           for (auto const& subpath: paths)
           {
              if (subpath.empty())
                 continue;
 
-             ss << L"M";
+             ss << "M";
              for (auto const& point: subpath)
-                ss << translateX(point.x, layout) << L"," << translateY(point.y, layout) << L" ";
-             ss << L"z ";
+                ss << translateX(point.x, layout) << "," << translateY(point.y, layout) << " ";
+             ss << "z ";
           }
-          ss << L"\" ";
-          ss << L"fill-rule=\"evenodd\" ";
+          ss << "\" ";
+          ss << "fill-rule=\"evenodd\" ";
 
           ss << fill.toString(layout) << stroke.toString(layout) << emptyElemEnd();
           return ss.str();
@@ -520,15 +520,15 @@ namespace svg
             points.push_back(point);
             return *this;
         }
-        std::wstring toString(Layout const & layout) const
+        std::string toString(Layout const & layout) const
         {
-            std::wstringstream ss;
-            ss << elemStart(L"polyline");
+            std::stringstream ss;
+            ss << elemStart("polyline");
 
-            ss << L"points=\"";
+            ss << "points=\"";
             for (unsigned i = 0; i < points.size(); ++i)
-                ss << translateX(points[i].x, layout) << L"," << translateY(points[i].y, layout) << L" ";
-            ss << L"\" ";
+                ss << translateX(points[i].x, layout) << "," << translateY(points[i].y, layout) << " ";
+            ss << "\" ";
 
             ss << fill.toString(layout) << stroke.toString(layout) << emptyElemEnd();
             return ss.str();
@@ -546,16 +546,16 @@ namespace svg
     class Text : public Shape
     {
     public:
-        Text(Point const & origin, std::wstring const & content, Fill const & fill = Fill(),
+        Text(Point const & origin, std::string const & content, Fill const & fill = Fill(),
              Font const & font = Font(), Stroke const & stroke = Stroke())
             : Shape(fill, stroke), origin(origin), content(content), font(font) { }
-        std::wstring toString(Layout const & layout) const
+        std::string toString(Layout const & layout) const
         {
-            std::wstringstream ss;
-            ss << elemStart(L"text") << attribute(L"x", translateX(origin.x, layout))
-                << attribute(L"y", translateY(origin.y, layout))
+            std::stringstream ss;
+            ss << elemStart("text") << attribute("x", translateX(origin.x, layout))
+                << attribute("y", translateY(origin.y, layout))
                 << fill.toString(layout) << stroke.toString(layout) << font.toString(layout)
-                << L">" << content << elemEnd(L"text");
+                << ">" << content << elemEnd("text");
             return ss.str();
         }
         void offset(Point const & offset)
@@ -565,7 +565,7 @@ namespace svg
         }
     private:
         Point origin;
-        std::wstring content;
+        std::string content;
         Font font;
     };
 
@@ -584,12 +584,12 @@ namespace svg
             polylines.push_back(polyline);
             return *this;
         }
-        std::wstring toString(Layout const & layout) const
+        std::string toString(Layout const & layout) const
         {
             if (polylines.empty())
-                return L"";
+                return "";
 
-            std::wstring ret;
+            std::string ret;
             for (unsigned i = 0; i < polylines.size(); ++i)
                 ret += polylineToString(polylines[i], layout);
 
@@ -626,11 +626,11 @@ namespace svg
 
             return optional<Dimensions>(Dimensions(max->x - min->x, max->y - min->y));
         }
-        std::wstring axisString(Layout const & layout) const
+        std::string axisString(Layout const & layout) const
         {
             optional<Dimensions> dimensions = getDimensions();
             if (!dimensions)
-                return L"";
+                return "";
 
             // Make the axis 10% wider and higher than the data points.
             double width = dimensions->width * 1.1;
@@ -643,7 +643,7 @@ namespace svg
 
             return axis.toString(layout);
         }
-        std::wstring polylineToString(Polyline const & polyline, Layout const & layout) const
+        std::string polylineToString(Polyline const & polyline, Layout const & layout) const
         {
             Polyline shifted_polyline = polyline;
             shifted_polyline.offset(Point(margin.width, margin.height));
@@ -659,7 +659,7 @@ namespace svg
     class Document
     {
     public:
-        Document(const wchar_t* file_name, Layout layout = Layout())
+        Document(std::string const & file_name, Layout layout = Layout())
             : file_name(file_name), layout(layout) { }
 
         Document & operator<<(Shape const & shape)
@@ -667,21 +667,21 @@ namespace svg
             body_nodes_str += shape.toString(layout);
             return *this;
         }
-        std::wstring toString() const
+        std::string toString() const
         {
-            std::wstringstream ss;
-            ss << L"<?xml " << attribute(L"version", L"1.0") << attribute(L"standalone", L"no")
-                << L"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" "
-                << L"\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n<svg "
-                << attribute(L"width", layout.dimensions.width, L"px")
-                << attribute(L"height", layout.dimensions.height, L"px")
-                << attribute(L"xmlns", L"http://www.w3.org/2000/svg")
-                << attribute(L"version", L"1.1") << L">\n" << body_nodes_str << elemEnd(L"svg");
+            std::stringstream ss;
+            ss << "<?xml " << attribute("version", "1.0") << attribute("standalone", "no")
+                << "?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" "
+                << "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n<svg "
+                << attribute("width", layout.dimensions.width, "px")
+                << attribute("height", layout.dimensions.height, "px")
+                << attribute("xmlns", "http://www.w3.org/2000/svg")
+                << attribute("version", "1.1") << ">\n" << body_nodes_str << elemEnd("svg");
             return ss.str();
         }
         bool save() const
         {
-            std::wofstream ofs(file_name);
+            std::ofstream ofs(file_name.c_str());
             if (!ofs.good())
                 return false;
 
@@ -690,10 +690,10 @@ namespace svg
             return true;
         }
     private:
-        const wchar_t* file_name;
+        std::string file_name;
         Layout layout;
 
-        std::wstring body_nodes_str;
+        std::string body_nodes_str;
     };
 }
 
