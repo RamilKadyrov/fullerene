@@ -3,8 +3,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <io.h>
-#include <fcntl.h>
 
 #include "fullereneTypes.h"
 #include "buildFullerene.h"
