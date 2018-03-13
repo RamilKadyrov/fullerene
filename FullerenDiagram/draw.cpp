@@ -1,6 +1,4 @@
-#include <algorithm>
 #include <vector>
-#include <iostream>
 #include <math.h>
 #include "fullereneTypes.h" 
 

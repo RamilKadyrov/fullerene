@@ -1,7 +1,4 @@
-#include <algorithm>
 #include <vector>
-#include <iostream>
-#include <math.h>
 #include "fullereneTypes.h" 
 #include "..\simple-svg\simple_svg_1.0.0.hpp"
 
