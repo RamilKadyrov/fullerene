@@ -16,13 +16,13 @@ inline double sqr(double x)
 
 Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
 {
-    std::vector<double> f, v; 
+    std::vector<double> f, v;
     double residue, residueOld;
     bool quit;
-    
+
     if ((nSide != 5) && (nSide != 6))
     {
-        LOG_ERROR( L"Last face contain incorrect number of edges:" << nSide );
+        LOG_ERROR(L"Last face contain incorrect number of edges:" << nSide);
         return Result::FAIL;
     }
 
@@ -43,7 +43,7 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
         v.push_back(static_cast<double>(graph[i].x));
         v.push_back(static_cast<double>(graph[i].y));
     }
- 
+
     quit = false;
     for (size_t l = 0; l < enlarge * iter && !quit; ++l)
     {
@@ -56,13 +56,13 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
         }
         int k = 5;
         residueOld = std::numeric_limits<double>::max();
-        LOG( L"Expanding the graph..." );
+        LOG(L"Expanding the graph...");
         do {
             bool overlap = true;
             while (overlap)
             {
                 overlap = false;
-                for (size_t i2 = 0, i = 0; i < sizeN && !overlap;  ++i, i2 += 2 )
+                for (size_t i2 = 0, i = 0; i < sizeN && !overlap; ++i, i2 += 2)
                 {
                     f[i2] = 0;
                     f[i2 + 1] = 0;
@@ -80,7 +80,7 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
                         {
                             overlap = true;
                             auto rnd = (double)rand() / RAND_MAX - 0.5;
-                            v[i2] +=  rnd;
+                            v[i2] += rnd;
                             v[i2 + 1] -= rnd;
                         }
                     }
@@ -89,7 +89,7 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
             }
             d.fillZero();
             //derivative matrix calculation
-            for (size_t i2 = 0, i = 0; i < sizeN;  ++i, i2 += 2)
+            for (size_t i2 = 0, i = 0; i < sizeN; ++i, i2 += 2)
             {
                 for (size_t edge = 0; edge < 3; ++edge)
                 {
@@ -99,9 +99,9 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
                     auto fX = sqr(v[j + 1] - v[i2 + 1]) * res - 1.0;
                     auto fY = sqr(v[j] - v[i2]) * res - 1.0;
                     auto fXY = (v[j + 1] - v[i2 + 1]) * (v[i2] - v[j]) * res;
-                    
+
                     d[i2][i2] += fX;
-                    d[i2 + 1][ i2 + 1] += fY;
+                    d[i2 + 1][i2 + 1] += fY;
                     d[i2][i2 + 1] += fXY;
                     d[i2 + 1][i2] += fXY;
                     // xi
@@ -115,7 +115,7 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
             //inverse matrix
             if (k > 3)
             {
-                LOG( L"Inverse matrix calculation. Size: " << sizeXYN << " x " << sizeXYN);
+                LOG(L"Inverse matrix calculation. Size: " << sizeXYN << " x " << sizeXYN);
                 d.inverse(sizeXYN);
                 k = 0;
             }
@@ -142,9 +142,9 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
             {
                 residueOld = residue;
             }
-            LOG( L"Residue = " << residue );
+            LOG(L"Residue = " << residue);
         } while (residue > epsilon);
-        LOG( L"Iteration number: "<< l );
+        LOG(L"Iteration number: " << l);
         quit = true;
         for (size_t i = 0; i < 2 * sizeN; i += 2)
         {
@@ -160,6 +160,6 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
         graph[i].x = static_cast<int>(v[i2]);
         graph[i].y = static_cast<int>(v[i2 + 1]);
     }
-    LOG( L"The graph is expanded" );
+    LOG(L"The graph is expanded");
     return Result::OK;
 }

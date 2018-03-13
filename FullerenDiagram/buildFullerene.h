@@ -1,10 +1,8 @@
 #pragma once
 #include <vector>
+
 struct Vertex;
-//struct Face;
 struct Params;
-
-
 
 class Build
 {
@@ -14,5 +12,5 @@ private:
     std::vector<Face> faces;
     std::vector<Edge> edges;
     std::vector<Vertex> vertexes;
-    bool fillEV(int faceIndex, int edgeIndex, const Vertex& vertex,  Edge **edge);
+    bool fillEV(int faceIndex, int edgeIndex, const Vertex& vertex, Edge **edge);
 };

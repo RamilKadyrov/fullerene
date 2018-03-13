@@ -6,10 +6,10 @@
 #include "buildFullerene.h"
 
 
-bool Build::fillEV(const int faceIndex, const int edgeIndex,const Vertex& vertex, Edge **edge)
+bool Build::fillEV(const int faceIndex, const int edgeIndex, const Vertex& vertex, Edge **edge)
 {
     int eIdx = 2;
-    
+
     while ((-1 != vertex.e[eIdx]) && (0 != eIdx))
     {
         --eIdx;
@@ -114,7 +114,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             face->edge[0] = freeFace->edge[edgeIndex];
             auto edge = &(edges[face->edge[0]]);
             edge->s2 = faceIndex;
-            
+
             for (edgeIndex = 1; edgeIndex < face->size; ++edgeIndex)
             {
                 if (fillEV(faceIndex, edgeIndex, graph[edge->v1], &edge)) break;
@@ -210,7 +210,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
         }
         for (size_t i = 0; i < graph.size(); ++i)
         {
-           graph[i].index = i;
+            graph[i].index = i;
         }
         //sorting, last face will be on the end
         std::sort(graph.begin(), graph.end(), [](Vertex& a, Vertex& b) {

@@ -1,5 +1,5 @@
 #pragma once
-struct Face{
+struct Face {
     int size = 6;
     int edge[6];
 };
@@ -10,7 +10,7 @@ struct  Edge {
     {
         s1 = s2 = v1 = v2 = -1;
     }
-    Edge(int _s1, int _s2, int _v1, int _v2):s1(_s1), s2(_s2), v1(_v1), v2(_v2)
+    Edge(int _s1, int _s2, int _v1, int _v2) :s1(_s1), s2(_s2), v1(_v1), v2(_v2)
     {}
 };
 
@@ -23,7 +23,7 @@ struct Vertex {
     bool lastFace;
 
     Vertex() { }
-    
+
     Vertex(int _e0, int _e1, int _e2, int _cycle, size_t _index, bool _lastFace)
     {
         e[0] = _e0;
@@ -35,8 +35,7 @@ struct Vertex {
     }
 };
 
-
-struct Params{
+struct Params {
     int faceNum;
     int faceToExpand;
     int nSide;
