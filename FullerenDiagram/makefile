@@ -7,14 +7,14 @@ OBJS = $(SRCS:.c=.o)
 
 all: $(TARGET)
 $(TARGET): $(OBJS)
-            $(CC) -o $(TARGET) $(OBJS) $(CFLAGS)
+		$(CC) -o $(TARGET) $(OBJS) $(CFLAGS)
  
 .c.o:
-            $(CC) $(CFLAGS)  -c $< -o $@
+		$(CC) $(CFLAGS)  -c $< -o $@
 
 clean:
-            rm -rf $(TARGET) $(OBJS)
+		rm -rf $(TARGET) $(OBJS)
 install:
-            install $(TARGET) $(PREFIX)/bin
+		install $(TARGET) $(PREFIX)/bin
 uninstall:
-            rm -rf $(PREFIX)/bin/$(TARGET)
+		rm -rf $(PREFIX)/bin/$(TARGET)
