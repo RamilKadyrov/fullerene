@@ -33,9 +33,6 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
 
     size_t sizeXY = 2 * graphSize;
 
-    /*d.m.resize(mtrxSize);
-    d.m_1.resize(mtrxSize);
-    wm.resize(mtrxSize);*/
     Matrix d(sizeXY);
 
     f.resize(sizeXY);
@@ -157,9 +154,7 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
                 break;
             }
         }
-
     }
-    
     for (size_t i = 0, i2 = 0; i < graphSize; ++i, i2 += 2)
     {
         graph[i].x = static_cast<int>(v[i2]);
