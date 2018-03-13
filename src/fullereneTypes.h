@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 struct Face {
     int size = 6;
     int edge[6];
@@ -18,8 +19,8 @@ struct Vertex {
     int e[3];  // edges or vertexes indexes
     int cycle;
     int x, y, r;
-    size_t cycleVertexIndex;
-    size_t index;
+    std::size_t cycleVertexIndex;
+    std::size_t index;
     bool lastFace;
 
     Vertex() { }

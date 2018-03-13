@@ -1,6 +1,6 @@
 #include <vector>
 #include "fullereneTypes.h" 
-#include "..\simple-svg\simple_svg_1.0.0.hpp"
+#include "../simple-svg/simple_svg_1.0.0.hpp"
 
 Result paint(const wchar_t* outfileName, std::vector<Vertex>& graph)
 {
