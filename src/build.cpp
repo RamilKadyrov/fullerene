@@ -71,9 +71,9 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             graph.push_back(Vertex(e0, edgeIndex, -1, currentCycle, static_cast<int>(graph.size()), false));
         }
         //loop on the remainig faces
-        size_t freeFaceIndex = 0;
-        size_t targetFaceIndex = 1;
-        size_t currentVertexIdx = 0;
+        std::size_t freeFaceIndex = 0;
+        std::size_t targetFaceIndex = 1;
+        std::size_t currentVertexIdx = 0;
         ++currentCycle;
         bool newCycle = false;
 
@@ -208,7 +208,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             graph[v].cycleVertexIndex = i;
             graph[v].cycle = currentCycle;
         }
-        for (size_t i = 0; i < graph.size(); ++i)
+        for (std::size_t i = 0; i < graph.size(); ++i)
         {
             graph[i].index = i;
         }
@@ -239,10 +239,10 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             return true;
         });
         //reindexing graph edges
-        for (size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
+        for (std::size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
         {
             currentVertexIdx = graph[vertexIndex].index;
-            for (size_t edgeIndex = 0; edgeIndex < 3; ++edgeIndex)
+            for (std::size_t edgeIndex = 0; edgeIndex < 3; ++edgeIndex)
             {
                 auto edge = &edges[graph[vertexIndex].e[edgeIndex]];
                 if (edge->v1 == currentVertexIdx)
@@ -251,7 +251,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
             }
         }
         //replacement in graph array edges indexes to vertexes indexes
-        for (size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
+        for (std::size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
         {
             auto vertex = &(graph[vertexIndex]);
             for (int edgeIndex = 0; edgeIndex < 3; ++edgeIndex)

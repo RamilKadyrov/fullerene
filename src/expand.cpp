@@ -13,7 +13,7 @@ inline double sqr(double x)
     return x * x;
 }
 
-Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
+Result expand(std::vector<Vertex>& graph, const double rm, const std::size_t nSide)
 {
     std::vector<double> f, v;
     double residue, residueOld;
@@ -25,28 +25,28 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
         return Result::FAIL;
     }
 
-    const size_t graphSize = graph.size();
-    const size_t sizeN = graphSize - nSide;
-    const size_t sizeXYN = sizeN * 2;
-    const size_t mtrxSize = 4 * graphSize * graphSize;
+    const std::size_t graphSize = graph.size();
+    const std::size_t sizeN = graphSize - nSide;
+    const std::size_t sizeXYN = sizeN * 2;
+    const std::size_t mtrxSize = 4 * graphSize * graphSize;
 
-    size_t sizeXY = 2 * graphSize;
+    std::size_t sizeXY = 2 * graphSize;
 
     Matrix d(sizeXY);
 
     f.resize(sizeXY);
     v.reserve(sizeXY);
 
-    for (size_t i = 0; i < graphSize; ++i)
+    for (std::size_t i = 0; i < graphSize; ++i)
     {
         v.push_back(static_cast<double>(graph[i].x));
         v.push_back(static_cast<double>(graph[i].y));
     }
 
     quit = false;
-    for (size_t l = 0; l < enlarge * iter && !quit; ++l)
+    for (std::size_t l = 0; l < enlarge * iter && !quit; ++l)
     {
-        for (size_t i = 0; i < nSide; ++i)
+        for (std::size_t i = 0; i < nSide; ++i)
         {
             auto dv = static_cast<double>(enlarge * iter - l) / static_cast<double>(enlarge * iter + 1 - l);
             auto i2 = i * 2;
@@ -61,11 +61,11 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
             while (overlap)
             {
                 overlap = false;
-                for (size_t i2 = 0, i = 0; i < sizeN && !overlap; ++i, i2 += 2)
+                for (std::size_t i2 = 0, i = 0; i < sizeN && !overlap; ++i, i2 += 2)
                 {
                     f[i2] = 0;
                     f[i2 + 1] = 0;
-                    for (size_t edge = 0; edge < 3 && !overlap; ++edge)
+                    for (std::size_t edge = 0; edge < 3 && !overlap; ++edge)
                     {
                         auto j = graph[i].e[edge] * 2;
                         auto res = sqrt(sqr(v[j] - v[i2]) + sqr(v[j + 1] - v[i2 + 1]));
@@ -88,9 +88,9 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
             }
             d.fillZero();
             //derivative matrix calculation
-            for (size_t i2 = 0, i = 0; i < sizeN; ++i, i2 += 2)
+            for (std::size_t i2 = 0, i = 0; i < sizeN; ++i, i2 += 2)
             {
-                for (size_t edge = 0; edge < 3; ++edge)
+                for (std::size_t edge = 0; edge < 3; ++edge)
                 {
                     auto j = graph[i].e[edge] * 2;
                     auto fL = sqr(v[j] - v[i2]) + sqr(v[j + 1] - v[i2 + 1]);
@@ -119,16 +119,16 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
                 k = 0;
             }
             ++k;
-            for (size_t i = 0; i < sizeXYN; ++i)
+            for (std::size_t i = 0; i < sizeXYN; ++i)
             {
-                for (size_t j = 0; j < sizeXYN; ++j)
+                for (std::size_t j = 0; j < sizeXYN; ++j)
                 {
                     v[i] -= d(i)[j] * f[j];
                 }
             }
 
             residue = 0.0;
-            for (size_t i = 0; i < sizeXYN; ++i)
+            for (std::size_t i = 0; i < sizeXYN; ++i)
             {
                 residue += abs(f[i]);
             }
@@ -145,7 +145,7 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
         } while (residue > epsilon);
         LOG(L"Iteration number: " << l);
         quit = true;
-        for (size_t i = 0; i < 2 * sizeN; i += 2)
+        for (std::size_t i = 0; i < 2 * sizeN; i += 2)
         {
             if (sqr(v[i] - rm) + sqr(v[i + 1] - rm) >= sqr(rm * 0.9))
             {
@@ -154,7 +154,7 @@ Result expand(std::vector<Vertex>& graph, const double rm, const size_t nSide)
             }
         }
     }
-    for (size_t i = 0, i2 = 0; i < graphSize; ++i, i2 += 2)
+    for (std::size_t i = 0, i2 = 0; i < graphSize; ++i, i2 += 2)
     {
         graph[i].x = static_cast<int>(v[i2]);
         graph[i].y = static_cast<int>(v[i2 + 1]);

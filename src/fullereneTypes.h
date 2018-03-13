@@ -25,7 +25,7 @@ struct Vertex {
 
     Vertex() { }
 
-    Vertex(int _e0, int _e1, int _e2, int _cycle, size_t _index, bool _lastFace)
+    Vertex(int _e0, int _e1, int _e2, int _cycle, std::size_t _index, bool _lastFace)
     {
         e[0] = _e0;
         e[1] = _e1;

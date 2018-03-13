@@ -9,7 +9,7 @@ Result draw(std::vector<Vertex>& graph, double& gRadius)
     const double R = 20.0;
 
     sp.reserve(10);
-    for (size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
+    for (std::size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
     {
         Vertex& vertex = graph[vertexIndex];
         while (vertex.cycle >= sp.size())
@@ -24,7 +24,7 @@ Result draw(std::vector<Vertex>& graph, double& gRadius)
     const double radius = gRadius * enlarge;
     //set last face vertexes coordinates 
     int edge = 0;
-    for (size_t vertexIndex = graph.size() - 1; vertexIndex >= 0; --vertexIndex)
+    for (std::size_t vertexIndex = graph.size() - 1; vertexIndex >= 0; --vertexIndex)
     {
         Vertex& vertex = graph[vertexIndex];
         if (vertex.lastFace)
@@ -42,7 +42,7 @@ Result draw(std::vector<Vertex>& graph, double& gRadius)
     sp.push_back(edge);
     const double Cx = gRadius;
     const double Cy = gRadius;
-    for (size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
+    for (std::size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
     {
         Vertex& vertex = graph[vertexIndex];
         double r = vertex.r; // radius

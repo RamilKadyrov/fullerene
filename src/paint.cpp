@@ -1,4 +1,5 @@
 #include <vector>
+#include <string>
 #include "fullereneTypes.h" 
 #include "../simple-svg/simple_svg_1.0.0.hpp"
 
@@ -18,12 +19,12 @@ Result paint(const wchar_t* outfileName, std::vector<Vertex>& graph)
 
     svg::Dimensions dimensions(maxX - minX, maxY - minY);
     svg::Document doc(outfileName, svg::Layout(dimensions, svg::Layout::BottomLeft));
-    for (size_t i = 0; i < graph.size(); ++i)
+    for (std::size_t i = 0; i < graph.size(); ++i)
     {
         Vertex &v = graph[i];
-        for (size_t edge = 0; edge < 3; ++edge)
+        for (std::size_t edge = 0; edge < 3; ++edge)
         {
-            if (static_cast<size_t>(v.e[edge]) < i) continue;
+            if (static_cast<std::size_t>(v.e[edge]) < i) continue;
 
             svg::Line line(svg::Point(v.x - minX, v.y - minY),
                 svg::Point(graph[v.e[edge]].x - minX, graph[v.e[edge]].y - minY),
