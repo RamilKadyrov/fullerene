@@ -72,7 +72,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
     ++currentCycle;
     bool newCycle = false;
 
-    for (int faceIndex = 1; faceIndex < params.faceNum; ++faceIndex)
+    for (int faceIndex = 1; faceIndex < static_cast<int>(params.faceNum); ++faceIndex)
     {
         if (newCycle)
         {
