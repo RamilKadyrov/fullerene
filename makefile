@@ -2,7 +2,7 @@ TARGET   = fullerene
 
 CC       = g++
 # compiling flags here
-CFLAGS   = -std=c++11 -Wall -I.
+CFLAGS   = -std=c++11 -Wall -I. -DNDEBUG -O2
 
 LINKER   = g++
 # linking flags here

@@ -28,8 +28,7 @@ Result expand(std::vector<Vertex>& graph, const double rm, const std::size_t nSi
     const std::size_t graphSize = graph.size();
     const std::size_t sizeN = graphSize - nSide;
     const std::size_t sizeXYN = sizeN * 2;
-    const std::size_t mtrxSize = 4 * graphSize * graphSize;
-
+ 
     std::size_t sizeXY = 2 * graphSize;
 
     Matrix d(sizeXY);

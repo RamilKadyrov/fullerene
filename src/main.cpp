@@ -37,7 +37,7 @@ int parseParams(std::ifstream* _infile, Params& _params)
     _params.faceToExpand = p[1] - 1;
     for (std::size_t i = 2; i < p.size(); ++i)
     {
-        if (_params.faceToExpand == p[i] - 1 ) _params.nSide = 5;
+        if (_params.faceToExpand == static_cast<int>(p[i]) - 1 ) _params.nSide = 5;
         _params.pentagons.push_back(p[i] - 1);
     }
     return 0;

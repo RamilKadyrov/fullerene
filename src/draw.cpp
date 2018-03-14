@@ -12,12 +12,12 @@ Result draw(std::vector<Vertex>& graph, double& gRadius)
     for (std::size_t vertexIndex = 0; vertexIndex < graph.size(); ++vertexIndex)
     {
         Vertex& vertex = graph[vertexIndex];
-        while (vertex.cycle >= sp.size())
+        while (vertex.cycle >= static_cast<int>(sp.size()))
         {
             sp.push_back(0);
         }
         ++sp[vertex.cycle];
-        vertex.r = static_cast<int>(R * pow(1.5, vertex.e[3]));
+        vertex.r = static_cast<int>(R * pow(1.5, vertex.cycle));
     }
 
     gRadius = (R * pow(1.5, sp.size() - 2.0) + 5.0);
