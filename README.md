@@ -20,7 +20,7 @@ Visual Studio required.
 
 for example:
 
-   fullerene resources/1.txt example/1.svg
+    fullerene resources/1.txt example/1.svg
 
 ### Input file format ###
 
