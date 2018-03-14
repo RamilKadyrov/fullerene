@@ -1,29 +1,28 @@
-# README #
+# Fullerene diagram #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+An application to create a Schlegel diagram of a fullerene.
 
-### What is this repository for? ###
+## To build: ##
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+### Windows ###
 
-### How do I get set up? ###
+Visual Studio required.
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+### Linux ###
 
-### Contribution guidelines ###
+    make
 
-* Writing tests
-* Code review
-* Other guidelines
+## To use: ##
 
-### Who do I talk to? ###
+    fullerene input_file_name.txt output_file_name.svg
 
-* Repo owner or admin
-* Other community or team contact
+### Input file format ###
+
+Number of faces, Index of face to expand, pentagons indexes with comma delimiter
+
+Input files examples are in a resources folder
+
+### Output file format ###
+
+Output files are in a SVG format
+
