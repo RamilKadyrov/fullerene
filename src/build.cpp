@@ -67,7 +67,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
     }
     //loop on the remainig faces
     std::size_t freeFaceIndex = 0;
-    std::size_t targetFaceIndex = 1;
+    int targetFaceIndex = 1;
     std::size_t currentVertexIdx = 0;
     ++currentCycle;
     bool newCycle = false;
@@ -240,7 +240,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
         for (std::size_t edgeIndex = 0; edgeIndex < 3; ++edgeIndex)
         {
             auto edge = &edges[graph[vertexIndex].e[edgeIndex]];
-            if (edge->v1 == currentVertexIdx)
+            if (edge->v1 == static_cast<int>(currentVertexIdx))
                 edge->v1 = static_cast<int>(vertexIndex);
             else edge->v2 = static_cast<int>(vertexIndex);
         }
@@ -252,7 +252,7 @@ Result Build::graph(const Params& params, std::vector<Vertex>& graph)
         for (int edgeIndex = 0; edgeIndex < 3; ++edgeIndex)
         {
             auto edge = &edges[vertex->e[edgeIndex]];
-            if (edge->v1 == vertexIndex)
+            if (edge->v1 == static_cast<int>(vertexIndex))
                 vertex->e[edgeIndex] = edge->v2;
             else vertex->e[edgeIndex] = edge->v1;
         }
