@@ -8,7 +8,7 @@ An application to create a Schlegel diagram of a fullerene.
 
 ### Windows ###
 
-Visual Studio required.
+Microsoft Visual Studio required.
 
 ### Linux ###
 
