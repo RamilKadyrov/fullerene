@@ -58,14 +58,6 @@ int main(int argc, char** argv)
         LOG_ERROR( errorMsg << "open file: " << infileName );
         exit(1);
     }
-    Params params;
-    if (parseParams(&infile, params) != 0)
-    {
-        LOG_ERROR(errorMsg << "parse parametrs from file: " << infileName);
-        infile.close();
-        exit(3);
-    }
-    infile.close();
     std::ofstream outfile(outfileName);
     if (!outfile.is_open())
     {
@@ -73,7 +65,12 @@ int main(int argc, char** argv)
         exit(2);
     }
     outfile.close();
-    
+    Params params;
+    if (parseParams(&infile, params) != 0)
+    {
+        LOG_ERROR( errorMsg << "parse parametrs from file: " << infileName );
+        exit(3);
+    }
     std::vector<Vertex> graph;
     Build build;
 
